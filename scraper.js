@@ -20,127 +20,107 @@ function getChromiumPath() {
 }
 
 async function loginWithPuppeteer(username, password) {
-  let browser;
-  const executablePath = getChromiumPath();
-  console.log(`[Puppeteer] Using Chromium at: ${executablePath || 'bundled'}`);
+  const { wrapper: CookieJar, jar } = (() => {
+    const tough = require('tough-cookie');
+    const j = new tough.CookieJar();
+    return { wrapper: tough.CookieJar, jar: j };
+  })();
 
-  try {
-    browser = await puppeteer.launch({
-      headless: 'new',
-      executablePath,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-        '--disable-extensions',
-      ],
-    });
+  const { wrapper } = require('axios-cookiejar-support');
+  const axiosWithCookies = wrapper(axios.create({
+    jar: CookieJar ? new (require('tough-cookie').CookieJar)() : undefined,
+    withCredentials: true,
+  }));
 
-    console.log('[Puppeteer] Browser launched');
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1280, height: 720 });
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-    await page.setExtraHTTPHeaders({ 'Accept-Language': 'he-IL,he;q=0.9,en-US;q=0.8,en;q=0.7' });
+  // Step 1: GET login page to grab logintoken + cookies
+  console.log('[Login] Fetching login page...');
+  const loginPageRes = await axiosWithCookies.get(`${MOODLE_URL}/login/index.php`, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'he-IL,he;q=0.9,en;q=0.8',
+    },
+    maxRedirects: 5,
+  });
 
-    console.log('[Puppeteer] Navigating to login page...');
-    await page.goto(`${MOODLE_URL}/login/index.php`, {
-      waitUntil: 'networkidle2',
-      timeout: 60000,
-    });
+  const $login = cheerio.load(loginPageRes.data);
+  const logintoken = $login('input[name="logintoken"]').val();
+  console.log(`[Login] Got logintoken: ${logintoken ? logintoken.slice(0,8) + '...' : 'NOT FOUND'}`);
 
-    console.log('[Puppeteer] Login page loaded, filling credentials...');
-    await page.waitForSelector('#username', { timeout: 15000 });
-    await page.type('#username', username);
-    await page.type('#password', password);
+  // Extract session cookies from response
+  const setCookieHeaders = loginPageRes.headers['set-cookie'] || [];
+  const cookieStr = setCookieHeaders.map(c => c.split(';')[0]).join('; ');
+  console.log(`[Login] Initial cookies: ${cookieStr.slice(0, 80)}`);
 
-    // Simulate human-like behavior
-    await page.mouse.move(100, 200);
-    await new Promise(r => setTimeout(r, 500));
+  // Step 2: POST login form
+  const qs = require('querystring');
+  const formData = qs.stringify({
+    username,
+    password,
+    logintoken: logintoken || '',
+    anchor: '',
+  });
 
-    console.log('[Puppeteer] Submitting login form...');
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 }),
-      page.click('#loginbtn'),
-    ]);
+  console.log('[Login] Submitting login form...');
+  const loginRes = await axiosWithCookies.post(`${MOODLE_URL}/login/index.php`, formData, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Referer': `${MOODLE_URL}/login/index.php`,
+      'Origin': MOODLE_URL,
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'he-IL,he;q=0.9,en;q=0.8',
+      'Cookie': cookieStr,
+    },
+    maxRedirects: 5,
+  });
 
-    console.log('[Puppeteer] Navigation complete, checking login result...');
+  const finalUrl = loginRes.request?.res?.responseUrl || loginRes.config?.url || '';
+  console.log(`[Login] Final URL after login: ${finalUrl}`);
 
-    // Log current URL to see where we ended up
-    const currentUrl = page.url();
-    console.log('[Puppeteer] Current URL after login:', currentUrl);
+  const $dashboard = cheerio.load(loginRes.data);
 
-    // Check for login error
-    const errorEl = await page.$('.loginerrors, #loginerrormessage, .alert-danger, .alert');
-    if (errorEl) {
-      const errorText = await page.evaluate(el => el.textContent, errorEl);
-      console.log('[Puppeteer] Error element text:', errorText.trim());
-      // If still on login page, credentials are wrong
-      if (currentUrl.includes('/login/')) {
-        throw new Error(`Login failed: ${errorText.trim()}`);
-      }
-    }
-
-    // Extract sesskey and user info
-    const pageData = await page.evaluate(() => {
-      const cfg = window.M && window.M.cfg;
-      const url = window.location.href;
-      return {
-        sesskey: cfg ? cfg.sesskey : null,
-        userid: cfg ? cfg.userid : null,
-        url,
-      };
-    });
-
-    console.log(`[Puppeteer] Page after login: ${pageData.url}`);
-    console.log(`[Puppeteer] sesskey found: ${!!pageData.sesskey}, userid: ${pageData.userid}`);
-
-    if (!pageData.sesskey) {
-      // Try to get page HTML for debugging
-      const bodyText = await page.evaluate(() => document.body.innerText.slice(0, 500));
-      console.log('[Puppeteer] Page body snippet:', bodyText);
-      throw new Error('Login failed: Could not extract session key');
-    }
-
-    // Extract fullname from page
-    const fullname = await page.evaluate(() => {
-      const selectors = [
-        '.usertext',
-        '.usermenu .userbutton .usertext',
-        '[data-region="user-menu"] .usertext',
-        '.username',
-        '[data-key="myprofile"] .menu-action-text',
-      ];
-      for (const sel of selectors) {
-        const el = document.querySelector(sel);
-        if (el && el.textContent.trim()) return el.textContent.trim();
-      }
-      return 'משתמש';
-    });
-
-    // Get cookies from browser
-    const cookies = await page.cookies();
-    console.log(`[Puppeteer] Login success! User: ${fullname}, cookies: ${cookies.length}`);
-
-    await browser.close();
-    browser = null;
-
-    return {
-      cookies,
-      sesskey: pageData.sesskey,
-      userid: pageData.userid,
-      fullname,
-    };
-  } catch (err) {
-    console.error('[Puppeteer] Error:', err.message);
-    if (browser) {
-      try { await browser.close(); } catch (e) {}
-    }
-    throw err;
+  // Check for error
+  const errorText = $dashboard('.loginerrors, #loginerrormessage, .alert-danger').text().trim();
+  if (errorText || finalUrl.includes('/login/')) {
+    throw new Error(`Login failed: ${errorText || 'Still on login page'}`);
   }
+
+  // Extract sesskey from page JS
+  const pageHtml = loginRes.data;
+  const sesskeyMatch = pageHtml.match(/"sesskey"\s*:\s*"([^"]+)"/);
+  const useridMatch = pageHtml.match(/"userid"\s*:\s*(\d+)/);
+  const sesskey = sesskeyMatch ? sesskeyMatch[1] : null;
+  const userid = useridMatch ? parseInt(useridMatch[1]) : null;
+
+  console.log(`[Login] sesskey: ${sesskey ? sesskey.slice(0,8)+'...' : 'NOT FOUND'}, userid: ${userid}`);
+
+  if (!sesskey) {
+    throw new Error('Login failed: Could not extract session key. Check credentials.');
+  }
+
+  // Extract fullname
+  const fullname = $dashboard('.usertext, .usermenu .usertext, [data-region="user-menu"] .usertext').first().text().trim()
+    || $dashboard('a[data-key="myprofile"]').text().trim()
+    || 'משתמש';
+
+  // Collect all cookies from both responses
+  const allSetCookies = [
+    ...(loginPageRes.headers['set-cookie'] || []),
+    ...(loginRes.headers['set-cookie'] || []),
+  ];
+
+  const cookieMap = {};
+  allSetCookies.forEach(c => {
+    const [pair] = c.split(';');
+    const [name, ...rest] = pair.split('=');
+    cookieMap[name.trim()] = rest.join('=').trim();
+  });
+
+  const cookies = Object.entries(cookieMap).map(([name, value]) => ({ name, value, domain: 'www.kodcodeacademy.org.il' }));
+  console.log(`[Login] Success! User: ${fullname}, cookies: ${cookies.length}`);
+
+  return { cookies, sesskey, userid, fullname };
 }
 
 function cookiesToHeader(cookies) {
