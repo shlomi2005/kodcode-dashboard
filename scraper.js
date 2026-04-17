@@ -43,6 +43,8 @@ async function loginWithPuppeteer(username, password) {
     console.log('[Puppeteer] Browser launched');
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 720 });
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    await page.setExtraHTTPHeaders({ 'Accept-Language': 'he-IL,he;q=0.9,en-US;q=0.8,en;q=0.7' });
 
     console.log('[Puppeteer] Navigating to login page...');
     await page.goto(`${MOODLE_URL}/login/index.php`, {
@@ -55,6 +57,10 @@ async function loginWithPuppeteer(username, password) {
     await page.type('#username', username);
     await page.type('#password', password);
 
+    // Simulate human-like behavior
+    await page.mouse.move(100, 200);
+    await new Promise(r => setTimeout(r, 500));
+
     console.log('[Puppeteer] Submitting login form...');
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 }),
@@ -63,11 +69,19 @@ async function loginWithPuppeteer(username, password) {
 
     console.log('[Puppeteer] Navigation complete, checking login result...');
 
+    // Log current URL to see where we ended up
+    const currentUrl = page.url();
+    console.log('[Puppeteer] Current URL after login:', currentUrl);
+
     // Check for login error
-    const errorEl = await page.$('.loginerrors, #loginerrormessage, .alert-danger');
+    const errorEl = await page.$('.loginerrors, #loginerrormessage, .alert-danger, .alert');
     if (errorEl) {
       const errorText = await page.evaluate(el => el.textContent, errorEl);
-      throw new Error(`Login failed: ${errorText.trim()}`);
+      console.log('[Puppeteer] Error element text:', errorText.trim());
+      // If still on login page, credentials are wrong
+      if (currentUrl.includes('/login/')) {
+        throw new Error(`Login failed: ${errorText.trim()}`);
+      }
     }
 
     // Extract sesskey and user info
