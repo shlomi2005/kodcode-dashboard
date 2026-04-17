@@ -28,6 +28,61 @@ app.use(express.json());
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Debug login - returns raw page response to diagnose issues
+app.post('/api/debug-login', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Missing fields' });
+  const axios = require('axios');
+  const cheerio = require('cheerio');
+  const MOODLE_URL = 'https://www.kodcodeacademy.org.il';
+  try {
+    const getRes = await axios.get(`${MOODLE_URL}/login/index.php`, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
+      maxRedirects: 5,
+    });
+    const $ = cheerio.load(getRes.data);
+    const logintoken = $('input[name="logintoken"]').val() || '';
+    const cookieMap = {};
+    (getRes.headers['set-cookie'] || []).forEach(c => {
+      const [p] = c.split(';'); const i = p.indexOf('=');
+      if (i > 0) cookieMap[p.slice(0,i).trim()] = p.slice(i+1).trim();
+    });
+    const cookieStr = Object.entries(cookieMap).map(([k,v]) => `${k}=${v}`).join('; ');
+    const params = new URLSearchParams();
+    params.append('username', username);
+    params.append('password', password);
+    params.append('logintoken', logintoken);
+    params.append('anchor', '');
+    const postRes = await axios.post(`${MOODLE_URL}/login/index.php`, params.toString(), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie': cookieStr,
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': `${MOODLE_URL}/login/index.php`,
+        'Origin': MOODLE_URL,
+      },
+      maxRedirects: 0,
+      validateStatus: s => s < 600,
+    });
+    const location = postRes.headers.location || 'no redirect';
+    const $2 = cheerio.load(postRes.data || '');
+    const errorText = $2('.loginerrors, .alert-danger, .alert').text().trim();
+    res.json({
+      postStatus: postRes.status,
+      location,
+      errorOnPage: errorText || 'none',
+      usernameReceived: username,
+      passwordLength: password.length,
+      passwordFirstChar: password[0],
+      passwordLastChar: password[password.length - 1],
+      logintoken: logintoken.slice(0,10) + '...',
+      cookiesSent: Object.keys(cookieMap),
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', sessions: sessions.size, timestamp: new Date().toISOString() });
