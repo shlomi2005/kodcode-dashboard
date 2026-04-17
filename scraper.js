@@ -20,106 +20,142 @@ function getChromiumPath() {
 }
 
 async function loginWithPuppeteer(username, password) {
-  const { wrapper: CookieJar, jar } = (() => {
-    const tough = require('tough-cookie');
-    const j = new tough.CookieJar();
-    return { wrapper: tough.CookieJar, jar: j };
-  })();
+  const HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Language': 'he-IL,he;q=0.9,en-US;q=0.8,en;q=0.7',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1',
+  };
 
-  const { wrapper } = require('axios-cookiejar-support');
-  const axiosWithCookies = wrapper(axios.create({
-    jar: CookieJar ? new (require('tough-cookie').CookieJar)() : undefined,
-    withCredentials: true,
-  }));
-
-  // Step 1: GET login page to grab logintoken + cookies
+  // Step 1: GET login page
   console.log('[Login] Fetching login page...');
-  const loginPageRes = await axiosWithCookies.get(`${MOODLE_URL}/login/index.php`, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-      'Accept-Language': 'he-IL,he;q=0.9,en;q=0.8',
-    },
+  const client = axios.create({ maxRedirects: 0, validateStatus: s => s < 400 });
+
+  const getRes = await axios.get(`${MOODLE_URL}/login/index.php`, {
+    headers: HEADERS,
     maxRedirects: 5,
   });
 
-  const $login = cheerio.load(loginPageRes.data);
-  const logintoken = $login('input[name="logintoken"]').val();
-  console.log(`[Login] Got logintoken: ${logintoken ? logintoken.slice(0,8) + '...' : 'NOT FOUND'}`);
+  const $login = cheerio.load(getRes.data);
+  const logintoken = $login('input[name="logintoken"]').val() || '';
+  console.log(`[Login] logintoken: ${logintoken ? logintoken.slice(0,10)+'...' : 'NOT FOUND'}`);
 
-  // Extract session cookies from response
-  const setCookieHeaders = loginPageRes.headers['set-cookie'] || [];
-  const cookieStr = setCookieHeaders.map(c => c.split(';')[0]).join('; ');
-  console.log(`[Login] Initial cookies: ${cookieStr.slice(0, 80)}`);
+  // Collect cookies from GET response
+  const cookieMap = {};
+  (getRes.headers['set-cookie'] || []).forEach(c => {
+    const [pair] = c.split(';');
+    const idx = pair.indexOf('=');
+    if (idx > 0) cookieMap[pair.slice(0, idx).trim()] = pair.slice(idx + 1).trim();
+  });
+  console.log(`[Login] Initial cookies: ${JSON.stringify(Object.keys(cookieMap))}`);
 
-  // Step 2: POST login form
-  const qs = require('querystring');
-  const formData = qs.stringify({
-    username,
-    password,
-    logintoken: logintoken || '',
-    anchor: '',
+  // Step 2: POST login — follow redirects manually to collect all cookies
+  const params = new URLSearchParams();
+  params.append('username', username);
+  params.append('password', password);
+  params.append('logintoken', logintoken);
+  params.append('anchor', '');
+
+  console.log('[Login] POSTing credentials...');
+
+  let postRes;
+  let redirectUrl = `${MOODLE_URL}/login/index.php`;
+  let hops = 0;
+
+  // Manual redirect loop to collect cookies at each hop
+  const reqHeaders = () => ({
+    ...HEADERS,
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Referer': `${MOODLE_URL}/login/index.php`,
+    'Origin': MOODLE_URL,
+    'Cookie': Object.entries(cookieMap).map(([k,v]) => `${k}=${v}`).join('; '),
   });
 
-  console.log('[Login] Submitting login form...');
-  const loginRes = await axiosWithCookies.post(`${MOODLE_URL}/login/index.php`, formData, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Referer': `${MOODLE_URL}/login/index.php`,
-      'Origin': MOODLE_URL,
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-      'Accept-Language': 'he-IL,he;q=0.9,en;q=0.8',
-      'Cookie': cookieStr,
-    },
-    maxRedirects: 5,
+  postRes = await axios.post(redirectUrl, params.toString(), {
+    headers: reqHeaders(),
+    maxRedirects: 0,
+    validateStatus: s => s < 400,
   });
 
-  const finalUrl = loginRes.request?.res?.responseUrl || loginRes.config?.url || '';
-  console.log(`[Login] Final URL after login: ${finalUrl}`);
-
-  const $dashboard = cheerio.load(loginRes.data);
-
-  // Check for error
-  const errorText = $dashboard('.loginerrors, #loginerrormessage, .alert-danger').text().trim();
-  if (errorText || finalUrl.includes('/login/')) {
-    throw new Error(`Login failed: ${errorText || 'Still on login page'}`);
+  // Follow up to 5 redirects manually
+  while ((postRes.status === 301 || postRes.status === 302 || postRes.status === 303) && hops < 5) {
+    (postRes.headers['set-cookie'] || []).forEach(c => {
+      const [pair] = c.split(';');
+      const idx = pair.indexOf('=');
+      if (idx > 0) cookieMap[pair.slice(0, idx).trim()] = pair.slice(idx + 1).trim();
+    });
+    redirectUrl = postRes.headers['location'];
+    if (!redirectUrl.startsWith('http')) redirectUrl = MOODLE_URL + redirectUrl;
+    console.log(`[Login] Redirect ${hops + 1}: ${redirectUrl}`);
+    postRes = await axios.get(redirectUrl, {
+      headers: { ...HEADERS, Cookie: Object.entries(cookieMap).map(([k,v]) => `${k}=${v}`).join('; ') },
+      maxRedirects: 0,
+      validateStatus: s => s < 400,
+    });
+    hops++;
   }
 
-  // Extract sesskey from page JS
-  const pageHtml = loginRes.data;
-  const sesskeyMatch = pageHtml.match(/"sesskey"\s*:\s*"([^"]+)"/);
-  const useridMatch = pageHtml.match(/"userid"\s*:\s*(\d+)/);
+  // Collect any final cookies
+  (postRes.headers['set-cookie'] || []).forEach(c => {
+    const [pair] = c.split(';');
+    const idx = pair.indexOf('=');
+    if (idx > 0) cookieMap[pair.slice(0, idx).trim()] = pair.slice(idx + 1).trim();
+  });
+
+  console.log(`[Login] Final URL: ${redirectUrl}, status: ${postRes.status}`);
+  console.log(`[Login] All cookies: ${JSON.stringify(Object.keys(cookieMap))}`);
+
+  const $page = cheerio.load(postRes.data);
+
+  // Check for error message
+  const errorMsg = $page('.loginerrors, #loginerrormessage, .alert-danger').text().trim();
+  if (errorMsg) throw new Error(`Login failed: ${errorMsg}`);
+
+  // If still on login page with no error, credentials might be wrong
+  if (redirectUrl.includes('/login/index.php') && !redirectUrl.includes('loginredirect')) {
+    const bodySnippet = $page('body').text().slice(0, 200).replace(/\s+/g,' ');
+    console.log('[Login] Still on login page. Body:', bodySnippet);
+    throw new Error('Login failed: Still on login page after submit');
+  }
+
+  // Extract sesskey
+  const html = postRes.data;
+  const sesskeyMatch = html.match(/"sesskey":"([^"]+)"/) || html.match(/sesskey=([a-zA-Z0-9]+)/);
+  const useridMatch = html.match(/"userid":(\d+)/);
   const sesskey = sesskeyMatch ? sesskeyMatch[1] : null;
   const userid = useridMatch ? parseInt(useridMatch[1]) : null;
 
-  console.log(`[Login] sesskey: ${sesskey ? sesskey.slice(0,8)+'...' : 'NOT FOUND'}, userid: ${userid}`);
+  console.log(`[Login] sesskey: ${sesskey ? 'FOUND' : 'NOT FOUND'}, userid: ${userid}`);
 
   if (!sesskey) {
-    throw new Error('Login failed: Could not extract session key. Check credentials.');
+    // Try fetching dashboard explicitly
+    console.log('[Login] sesskey not found, fetching dashboard...');
+    const dashRes = await axios.get(`${MOODLE_URL}/my/`, {
+      headers: { ...HEADERS, Cookie: Object.entries(cookieMap).map(([k,v]) => `${k}=${v}`).join('; ') },
+      maxRedirects: 5,
+    });
+    const m1 = dashRes.data.match(/"sesskey":"([^"]+)"/);
+    const m2 = dashRes.data.match(/"userid":(\d+)/);
+    if (m1) {
+      const sesskey2 = m1[1];
+      const userid2 = m2 ? parseInt(m2[1]) : null;
+      const $d = cheerio.load(dashRes.data);
+      const fullname2 = $d('.usertext').first().text().trim() || 'משתמש';
+      const cookies2 = Object.entries(cookieMap).map(([name, value]) => ({ name, value, domain: 'www.kodcodeacademy.org.il' }));
+      console.log(`[Login] Success via dashboard! User: ${fullname2}`);
+      return { cookies: cookies2, sesskey: sesskey2, userid: userid2, fullname: fullname2 };
+    }
+    throw new Error('Login failed: Could not extract session key');
   }
 
-  // Extract fullname
-  const fullname = $dashboard('.usertext, .usermenu .usertext, [data-region="user-menu"] .usertext').first().text().trim()
-    || $dashboard('a[data-key="myprofile"]').text().trim()
+  const fullname = $page('.usertext').first().text().trim()
+    || $page('a[data-key="myprofile"]').text().trim()
     || 'משתמש';
-
-  // Collect all cookies from both responses
-  const allSetCookies = [
-    ...(loginPageRes.headers['set-cookie'] || []),
-    ...(loginRes.headers['set-cookie'] || []),
-  ];
-
-  const cookieMap = {};
-  allSetCookies.forEach(c => {
-    const [pair] = c.split(';');
-    const [name, ...rest] = pair.split('=');
-    cookieMap[name.trim()] = rest.join('=').trim();
-  });
 
   const cookies = Object.entries(cookieMap).map(([name, value]) => ({ name, value, domain: 'www.kodcodeacademy.org.il' }));
   console.log(`[Login] Success! User: ${fullname}, cookies: ${cookies.length}`);
-
   return { cookies, sesskey, userid, fullname };
 }
 
