@@ -4,12 +4,30 @@ const cheerio = require('cheerio');
 
 const MOODLE_URL = 'https://www.kodcodeacademy.org.il';
 
+function getChromiumPath() {
+  const candidates = [
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+  ].filter(Boolean);
+  const fs = require('fs');
+  for (const p of candidates) {
+    try { if (fs.existsSync(p)) return p; } catch {}
+  }
+  return undefined;
+}
+
 async function loginWithPuppeteer(username, password) {
   let browser;
+  const executablePath = getChromiumPath();
+  console.log(`[Puppeteer] Using Chromium at: ${executablePath || 'bundled'}`);
+
   try {
     browser = await puppeteer.launch({
       headless: 'new',
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+      executablePath,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -22,25 +40,28 @@ async function loginWithPuppeteer(username, password) {
       ],
     });
 
+    console.log('[Puppeteer] Browser launched');
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 720 });
 
-    // Navigate to login page
+    console.log('[Puppeteer] Navigating to login page...');
     await page.goto(`${MOODLE_URL}/login/index.php`, {
       waitUntil: 'networkidle2',
-      timeout: 30000,
+      timeout: 60000,
     });
 
-    // Fill in credentials
-    await page.waitForSelector('#username', { timeout: 10000 });
+    console.log('[Puppeteer] Login page loaded, filling credentials...');
+    await page.waitForSelector('#username', { timeout: 15000 });
     await page.type('#username', username);
     await page.type('#password', password);
 
-    // Submit the form
+    console.log('[Puppeteer] Submitting login form...');
     await Promise.all([
-      page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
+      page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 }),
       page.click('#loginbtn'),
     ]);
+
+    console.log('[Puppeteer] Navigation complete, checking login result...');
 
     // Check for login error
     const errorEl = await page.$('.loginerrors, #loginerrormessage, .alert-danger');
@@ -52,28 +73,43 @@ async function loginWithPuppeteer(username, password) {
     // Extract sesskey and user info
     const pageData = await page.evaluate(() => {
       const cfg = window.M && window.M.cfg;
+      const url = window.location.href;
       return {
         sesskey: cfg ? cfg.sesskey : null,
         userid: cfg ? cfg.userid : null,
-        wwwroot: cfg ? cfg.wwwroot : null,
+        url,
       };
     });
 
+    console.log(`[Puppeteer] Page after login: ${pageData.url}`);
+    console.log(`[Puppeteer] sesskey found: ${!!pageData.sesskey}, userid: ${pageData.userid}`);
+
     if (!pageData.sesskey) {
+      // Try to get page HTML for debugging
+      const bodyText = await page.evaluate(() => document.body.innerText.slice(0, 500));
+      console.log('[Puppeteer] Page body snippet:', bodyText);
       throw new Error('Login failed: Could not extract session key');
     }
 
     // Extract fullname from page
     const fullname = await page.evaluate(() => {
-      const nameEl = document.querySelector('.usertext, .usermenu .userbutton .usertext, [data-region="user-menu"] .usertext, .username');
-      if (nameEl) return nameEl.textContent.trim();
-      const loggedInEl = document.querySelector('.loggedin');
-      if (loggedInEl) return loggedInEl.textContent.replace('אתה מחובר כ', '').trim();
+      const selectors = [
+        '.usertext',
+        '.usermenu .userbutton .usertext',
+        '[data-region="user-menu"] .usertext',
+        '.username',
+        '[data-key="myprofile"] .menu-action-text',
+      ];
+      for (const sel of selectors) {
+        const el = document.querySelector(sel);
+        if (el && el.textContent.trim()) return el.textContent.trim();
+      }
       return 'משתמש';
     });
 
     // Get cookies from browser
     const cookies = await page.cookies();
+    console.log(`[Puppeteer] Login success! User: ${fullname}, cookies: ${cookies.length}`);
 
     await browser.close();
     browser = null;
@@ -82,9 +118,10 @@ async function loginWithPuppeteer(username, password) {
       cookies,
       sesskey: pageData.sesskey,
       userid: pageData.userid,
-      fullname: fullname || 'משתמש',
+      fullname,
     };
   } catch (err) {
+    console.error('[Puppeteer] Error:', err.message);
     if (browser) {
       try { await browser.close(); } catch (e) {}
     }
@@ -125,19 +162,12 @@ async function fetchCourses(client, sesskey) {
           customfieldvalue: '',
         },
       },
-    ], {
-      params: { sesskey },
-    });
+    ], { params: { sesskey } });
 
     const data = response.data;
     if (!Array.isArray(data) || !data[0]) return [];
-
     const result = data[0];
-    if (result.error) {
-      console.error('Courses API error:', result.exception);
-      return [];
-    }
-
+    if (result.error) { console.error('Courses API error:', result.exception); return []; }
     const courses = result.data?.courses || [];
     return courses.map(course => ({
       id: course.id,
@@ -145,7 +175,6 @@ async function fetchCourses(client, sesskey) {
       shortname: course.shortname,
       progress: course.progress || 0,
       category: course.coursecategory || '',
-      imageurl: course.courseimage || null,
       url: `${MOODLE_URL}/course/view.php?id=${course.id}`,
     }));
   } catch (err) {
@@ -159,7 +188,6 @@ async function fetchGrades(client) {
     const response = await client.get('/grade/report/overview/index.php');
     const $ = cheerio.load(response.data);
     const grades = [];
-
     $('table.generaltable tbody tr, .grade-report-overview table tbody tr').each((i, row) => {
       const cells = $(row).find('td');
       if (cells.length >= 2) {
@@ -167,15 +195,10 @@ async function fetchGrades(client) {
         const gradeText = $(cells[cells.length - 1]).text().trim();
         if (courseName && gradeText) {
           const gradeNum = parseFloat(gradeText.replace(',', '.'));
-          grades.push({
-            coursename: courseName,
-            grade: isNaN(gradeNum) ? gradeText : gradeNum,
-            isNumeric: !isNaN(gradeNum),
-          });
+          grades.push({ coursename: courseName, grade: isNaN(gradeNum) ? gradeText : gradeNum, isNumeric: !isNaN(gradeNum) });
         }
       }
     });
-
     return grades;
   } catch (err) {
     console.error('Error fetching grades:', err.message);
@@ -186,32 +209,18 @@ async function fetchGrades(client) {
 async function fetchAssignments(client, sesskey) {
   try {
     const now = Math.floor(Date.now() / 1000);
-    const thirtyDaysAgo = now - 30 * 24 * 60 * 60;
-    const ninetyDaysAhead = now + 90 * 24 * 60 * 60;
-
     const response = await client.post('/lib/ajax/service.php', [
       {
         index: 0,
         methodname: 'core_calendar_get_action_events_by_timesort',
-        args: {
-          timesortfrom: thirtyDaysAgo,
-          timesortto: ninetyDaysAhead,
-          limitnum: 50,
-        },
+        args: { timesortfrom: now - 30 * 86400, timesortto: now + 90 * 86400, limitnum: 50 },
       },
-    ], {
-      params: { sesskey },
-    });
+    ], { params: { sesskey } });
 
     const data = response.data;
     if (!Array.isArray(data) || !data[0]) return [];
-
     const result = data[0];
-    if (result.error) {
-      console.error('Assignments API error:', result.exception);
-      return [];
-    }
-
+    if (result.error) { console.error('Assignments API error:', result.exception); return []; }
     const events = result.data?.events || [];
     return events
       .filter(e => e.modulename === 'assign' || e.eventtype === 'due')
@@ -223,7 +232,7 @@ async function fetchAssignments(client, sesskey) {
         completed: event.action?.actionable === false,
         url: event.url || '',
         overdue: event.timesort < now,
-        daysLeft: Math.ceil((event.timesort - now) / (60 * 60 * 24)),
+        daysLeft: Math.ceil((event.timesort - now) / 86400),
       }));
   } catch (err) {
     console.error('Error fetching assignments:', err.message);
@@ -237,26 +246,14 @@ async function fetchMessages(client, sesskey, userid) {
       {
         index: 0,
         methodname: 'message_popup_get_popup_notifications',
-        args: {
-          useridto: userid,
-          newestfirst: true,
-          limit: 20,
-          offset: 0,
-        },
+        args: { useridto: userid, newestfirst: true, limit: 20, offset: 0 },
       },
-    ], {
-      params: { sesskey },
-    });
+    ], { params: { sesskey } });
 
     const data = response.data;
     if (!Array.isArray(data) || !data[0]) return [];
-
     const result = data[0];
-    if (result.error) {
-      console.error('Messages API error:', result.exception);
-      return [];
-    }
-
+    if (result.error) { console.error('Messages API error:', result.exception); return []; }
     const notifications = result.data?.notifications || [];
     return notifications.map(n => ({
       id: n.id,
@@ -275,14 +272,12 @@ async function fetchMessages(client, sesskey, userid) {
 async function fetchAllData(session) {
   const { cookies, sesskey, userid } = session;
   const client = buildAxiosClient(cookies);
-
   const [courses, grades, assignments, messages] = await Promise.all([
     fetchCourses(client, sesskey),
     fetchGrades(client),
     fetchAssignments(client, sesskey),
     fetchMessages(client, sesskey, userid),
   ]);
-
   return { courses, grades, assignments, messages };
 }
 
