@@ -1,0 +1,15 @@
+[phases.setup]
+nixPkgs = ["nodejs_20", "chromium", "nss", "nspr", "atk", "cups", "dbus", "expat", "fontconfig", "freetype", "gdk-pixbuf", "glib", "gtk3", "libdrm", "libgbm", "libX11", "libXcomposite", "libXdamage", "libXext", "libXfixes", "libXrandr", "libxcb", "libxkbcommon", "mesa", "pango", "xorg.libXcursor", "xorg.libXi", "xorg.libXrender", "xorg.libXScrnSaver", "xorg.libXtst", "alsa-lib"]
+
+[phases.install]
+cmds = ["npm install --production"]
+
+[phases.build]
+cmds = []
+
+[start]
+cmd = "node server.js"
+
+[variables]
+PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
+PUPPETEER_EXECUTABLE_PATH = "/run/current-system/sw/bin/chromium"
