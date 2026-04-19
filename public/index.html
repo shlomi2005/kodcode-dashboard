@@ -1,540 +1,699 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>KodCode Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Noto+Sans+Hebrew:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>KodCode Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Noto+Sans+Hebrew:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#070b14;--bg2:#0c1221;--bg3:#111827;
-  --card:rgba(255,255,255,0.04);--card-b:rgba(255,255,255,0.08);--card-h:rgba(255,255,255,0.07);
-  --accent:#38bdf8;--accent2:#818cf8;--accent3:#34d399;--accent4:#f472b6;--accent5:#fb923c;
-  --text:#f1f5f9;--text2:#94a3b8;--text3:#475569;
+  --card:rgba(255,255,255,0.04);--cb:rgba(255,255,255,0.08);--ch:rgba(255,255,255,0.07);
+  --accent:#38bdf8;--a2:#818cf8;--a3:#34d399;--a4:#f472b6;--a5:#fb923c;
+  --text:#f1f5f9;--t2:#94a3b8;--t3:#475569;
   --danger:#f87171;--warn:#fbbf24;--ok:#34d399;
-  --sw:260px;
+  --sw:250px;
 }
-html,body{height:100%;font-family:'Noto Sans Hebrew',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+html,body{height:100%;font-family:'Noto Sans Hebrew',sans-serif;background:var(--bg);color:var(--text)}
 #root{height:100%}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
-
-/* ── ANIMATIONS ── */
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes orbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-@keyframes gradientMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-@keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-20px) scale(1.05)}}
+.fade{animation:fadeUp .35s ease both}
 
-.fade-in{animation:fadeUp .4s ease both}
-
-/* ── LOGIN ── */
-.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden}
+/* LOGIN */
+.lp{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden}
 .orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;animation:orbFloat 8s ease-in-out infinite}
-.orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(56,189,248,.25),transparent 70%);top:-200px;right:-200px;animation-delay:0s}
-.orb2{width:500px;height:500px;background:radial-gradient(circle,rgba(129,140,248,.2),transparent 70%);bottom:-150px;left:-150px;animation-delay:-3s}
-.orb3{width:350px;height:350px;background:radial-gradient(circle,rgba(52,211,153,.15),transparent 70%);top:40%;left:30%;animation-delay:-5s}
+.o1{width:600px;height:600px;background:radial-gradient(circle,rgba(56,189,248,.22),transparent 70%);top:-200px;right:-200px}
+.o2{width:500px;height:500px;background:radial-gradient(circle,rgba(129,140,248,.18),transparent 70%);bottom:-150px;left:-150px;animation-delay:-3s}
+.o3{width:350px;height:350px;background:radial-gradient(circle,rgba(52,211,153,.12),transparent 70%);top:40%;left:30%;animation-delay:-5s}
+.lcard{position:relative;z-index:10;width:100%;max-width:420px;background:rgba(12,18,33,.88);border:1px solid rgba(56,189,248,.15);border-radius:22px;padding:44px 40px;backdrop-filter:blur(24px);box-shadow:0 0 80px rgba(56,189,248,.06),0 40px 80px rgba(0,0,0,.5)}
+.llogo{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:6px}
+.licon{width:50px;height:50px;background:linear-gradient(135deg,#38bdf8,#818cf8);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:19px;color:#fff;box-shadow:0 8px 24px rgba(56,189,248,.3)}
+.ltxt{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(135deg,#f1f5f9,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lsub{text-align:center;color:var(--t3);font-size:13px;margin-bottom:30px;margin-top:5px}
+.fg{margin-bottom:16px}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--t2);margin-bottom:7px;letter-spacing:.06em;text-transform:uppercase}
+.fi{width:100%;padding:13px 15px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:11px;color:var(--text);font-size:15px;font-family:'Noto Sans Hebrew',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;direction:ltr}
+.fi:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.14)}
+.fi::placeholder{color:var(--t3)}
+.btnp{width:100%;padding:14px;background:linear-gradient(135deg,#38bdf8,#818cf8);border:none;border-radius:11px;color:#fff;font-size:15px;font-weight:700;font-family:'Noto Sans Hebrew',sans-serif;cursor:pointer;margin-top:6px;transition:opacity .2s,transform .15s;box-shadow:0 8px 24px rgba(56,189,248,.22)}
+.btnp:hover:not(:disabled){opacity:.9;transform:translateY(-1px)}.btnp:disabled{opacity:.5;cursor:not-allowed}
+.eb{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:9px;padding:11px 15px;font-size:13px;color:var(--danger);margin-top:12px;text-align:center}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:7px}
 
-.login-card{position:relative;z-index:10;width:100%;max-width:440px;background:rgba(12,18,33,0.85);border:1px solid rgba(56,189,248,.15);border-radius:24px;padding:48px 44px;backdrop-filter:blur(24px);box-shadow:0 0 80px rgba(56,189,248,.06),0 40px 80px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.05)}
-
-.login-logo{display:flex;align-items:center;gap:14px;justify-content:center;margin-bottom:8px}
-.logo-icon{width:52px;height:52px;background:linear-gradient(135deg,#38bdf8,#818cf8);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:#fff;box-shadow:0 8px 24px rgba(56,189,248,.3);flex-shrink:0}
-.logo-text{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;background:linear-gradient(135deg,#f1f5f9,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.login-sub{text-align:center;color:var(--text3);font-size:13px;margin-bottom:36px;margin-top:6px}
-
-.form-group{margin-bottom:18px}
-.form-label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;letter-spacing:.05em;text-transform:uppercase}
-.form-input{width:100%;padding:14px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:var(--text);font-size:15px;font-family:'Noto Sans Hebrew',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;direction:ltr}
-.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.15)}
-.form-input::placeholder{color:var(--text3)}
-
-.btn-primary{width:100%;padding:15px;background:linear-gradient(135deg,#38bdf8,#818cf8);border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;font-family:'Noto Sans Hebrew',sans-serif;cursor:pointer;margin-top:8px;transition:opacity .2s,transform .15s,box-shadow .2s;box-shadow:0 8px 24px rgba(56,189,248,.25)}
-.btn-primary:hover:not(:disabled){opacity:.9;transform:translateY(-1px);box-shadow:0 12px 32px rgba(56,189,248,.35)}
-.btn-primary:active:not(:disabled){transform:translateY(0)}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed}
-
-.err-box{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--danger);margin-top:14px;text-align:center}
-.spinner{width:17px;height:17px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px}
-
-/* ── LAYOUT ── */
+/* LAYOUT */
 .app{display:flex;min-height:100vh}
+.sb{width:var(--sw);background:var(--bg2);border-left:1px solid var(--cb);display:flex;flex-direction:column;position:fixed;top:0;right:0;bottom:0;z-index:100}
+.sb-top{padding:20px 18px 14px;border-bottom:1px solid var(--cb)}
+.sb-logo{display:flex;align-items:center;gap:9px}
+.sb-li{width:36px;height:36px;background:linear-gradient(135deg,#38bdf8,#818cf8);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff;flex-shrink:0}
+.sb-lt{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+.sb-user{padding:12px 18px;border-bottom:1px solid var(--cb);display:flex;align-items:center;gap:10px}
+.sb-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#818cf8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+.sb-un{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-ur{font-size:10px;color:var(--t3)}
+.sb-nav{flex:1;padding:10px 10px;overflow-y:auto}
+.sb-section{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;padding:10px 10px 5px;margin-top:5px}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;color:var(--t2);font-size:13px;font-weight:500;margin-bottom:2px;user-select:none;transition:background .15s,color .15s}
+.ni:hover{background:var(--ch);color:var(--text)}.ni.active{background:rgba(56,189,248,.12);color:var(--accent)}
+.ni-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center}
+.nb{margin-right:auto;background:var(--accent);color:var(--bg);font-size:10px;font-weight:700;padding:2px 6px;border-radius:999px}
+.nb-red{background:var(--danger);color:#fff}
+.sb-foot{padding:12px 10px;border-top:1px solid var(--cb)}
+.btn-lo{width:100%;padding:9px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:9px;color:var(--danger);font-size:12px;font-weight:600;font-family:'Noto Sans Hebrew',sans-serif;cursor:pointer;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-lo:hover{background:rgba(248,113,113,.14)}
 
-/* ── SIDEBAR ── */
-.sidebar{width:var(--sw);background:var(--bg2);border-left:1px solid var(--card-b);display:flex;flex-direction:column;position:fixed;top:0;right:0;bottom:0;z-index:100;transition:transform .3s}
-.sb-top{padding:24px 20px 16px;border-bottom:1px solid var(--card-b)}
-.sb-logo{display:flex;align-items:center;gap:10px}
-.sb-logo-icon{width:38px;height:38px;background:linear-gradient(135deg,#38bdf8,#818cf8);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#fff;flex-shrink:0}
-.sb-logo-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text)}
+/* MAIN */
+.main{flex:1;margin-right:var(--sw);padding:28px 32px;min-height:100vh;overflow-y:auto}
+.ph{margin-bottom:26px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.pt{font-family:'Syne',sans-serif;font-size:27px;font-weight:800;color:var(--text)}
+.ps{font-size:13px;color:var(--t3);margin-top:5px}
+.btn-back{background:rgba(255,255,255,.06);border:1px solid var(--cb);border-radius:9px;color:var(--t2);font-size:12px;font-weight:600;font-family:'Noto Sans Hebrew',sans-serif;padding:7px 14px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s}
+.btn-back:hover{background:var(--ch);color:var(--text)}
+.btn-sm{background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);border-radius:8px;color:var(--accent);font-size:12px;font-weight:600;font-family:'Noto Sans Hebrew',sans-serif;padding:6px 13px;cursor:pointer;transition:background .15s}
+.btn-sm:hover{background:rgba(56,189,248,.17)}.btn-sm:disabled{opacity:.5;cursor:not-allowed}
 
-.sb-user{padding:16px 20px;border-bottom:1px solid var(--card-b);display:flex;align-items:center;gap:12px}
-.sb-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#818cf8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex-shrink:0}
-.sb-user-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sb-user-role{font-size:11px;color:var(--text3)}
+/* LOADING */
+.ld{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px;gap:14px;color:var(--t2)}
+.ld-sp{width:40px;height:40px;border:3px solid rgba(56,189,248,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+.ld-tx{font-size:13px;animation:pulse 1.5s ease infinite}
 
-.sb-nav{flex:1;padding:14px 12px;overflow-y:auto}
-.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;color:var(--text2);font-size:14px;font-weight:500;margin-bottom:3px;user-select:none;transition:background .15s,color .15s}
-.nav-item:hover{background:var(--card-h);color:var(--text)}
-.nav-item.active{background:rgba(56,189,248,.12);color:var(--accent)}
-.nav-icon{font-size:18px;flex-shrink:0;width:22px;text-align:center}
-.nav-badge{margin-right:auto;background:var(--accent);color:var(--bg);font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px}
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px}
+.sc{background:var(--card);border:1px solid var(--cb);border-radius:16px;padding:20px 18px;transition:border-color .2s,transform .2s}
+.sc:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.13)}
+.sc-icon{font-size:24px;margin-bottom:10px}
+.sc-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1;margin-bottom:4px}
+.sc-lbl{font-size:11px;color:var(--t3);font-weight:500}
 
-.sb-footer{padding:14px 12px;border-top:1px solid var(--card-b)}
-.btn-logout{width:100%;padding:10px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;color:var(--danger);font-size:13px;font-weight:600;font-family:'Noto Sans Hebrew',sans-serif;cursor:pointer;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:8px}
-.btn-logout:hover{background:rgba(248,113,113,.15)}
+/* SECTION CARD */
+.card{background:var(--card);border:1px solid var(--cb);border-radius:16px;padding:22px}
+.card-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.cnt{font-size:10px;background:rgba(255,255,255,.07);color:var(--t3);padding:2px 7px;border-radius:999px;font-weight:600}
 
-/* ── MAIN ── */
-.main{flex:1;margin-right:var(--sw);padding:32px 36px;min-height:100vh;overflow-y:auto}
-.page-header{margin-bottom:32px}
-.page-title{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--text);line-height:1.1}
-.page-sub{font-size:14px;color:var(--text3);margin-top:6px}
+/* TWO COL */
+.tc{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:860px){.tc{grid-template-columns:1fr}}
 
-/* ── LOADING ── */
-.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:350px;gap:16px;color:var(--text2)}
-.spinner-lg{width:42px;height:42px;border:3px solid rgba(56,189,248,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
-.loading-text{font-size:14px;animation:pulse 1.5s ease infinite}
+/* COURSE ROW */
+.cr{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:opacity .15s}
+.cr:hover{opacity:.85}.cr:last-child{border-bottom:none;padding-bottom:0}
+.ca{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+.ci{flex:1;min-width:0}
+.cn{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.csub{font-size:11px;color:var(--t3);margin-top:2px}
+.pb{height:4px;background:rgba(255,255,255,.07);border-radius:2px;margin-top:6px}
+.pf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--a2));transition:width .8s}
 
-/* ── STATS GRID ── */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px}
-.stat-card{background:var(--card);border:1px solid var(--card-b);border-radius:18px;padding:22px 20px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s,background .2s;cursor:default}
-.stat-card::before{content:'';position:absolute;inset:0;background:var(--grad,transparent);opacity:.06;pointer-events:none}
-.stat-card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.14);background:var(--card-h)}
-.stat-card-icon{font-size:26px;margin-bottom:12px}
-.stat-card-value{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;line-height:1;margin-bottom:5px;background:var(--vgrad,none);-webkit-background-clip:var(--vclip,initial);-webkit-text-fill-color:var(--vtfill,var(--text))}
-.stat-card-label{font-size:12px;color:var(--text3);font-weight:500}
-.stat-card-sub{font-size:11px;color:var(--text3);margin-top:4px}
+/* GRADE PILL */
+.gp{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;flex-shrink:0}
+.gh{background:rgba(52,211,153,.15);color:var(--ok)}.gm{background:rgba(251,191,36,.15);color:var(--warn)}.gl{background:rgba(248,113,113,.15);color:var(--danger)}.gn{background:rgba(255,255,255,.07);color:var(--t3)}
 
-/* ── TWO COL ── */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+/* ASSIGN ROW */
+.ar{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.ar:last-child{border-bottom:none}.ad{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ai{flex:1;min-width:0}.an{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac{font-size:11px;color:var(--t3);margin-top:2px}
+.dt{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;flex-shrink:0}
+.dd{background:rgba(248,113,113,.15);color:var(--danger);border:1px solid rgba(248,113,113,.25)}
+.dw{background:rgba(251,191,36,.15);color:var(--warn)}.dok{background:rgba(52,211,153,.12);color:var(--ok)}
+.dov{background:rgba(248,113,113,.2);color:var(--danger);border:1px solid rgba(248,113,113,.35)}
+.done{background:rgba(255,255,255,.06);color:var(--t3)}
 
-/* ── SECTION CARD ── */
-.sc{background:var(--card);border:1px solid var(--card-b);border-radius:18px;padding:24px}
-.sc-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:18px;display:flex;align-items:center;gap:8px}
-.sc-count{font-size:11px;background:rgba(255,255,255,.07);color:var(--text3);padding:2px 8px;border-radius:999px;font-weight:600;margin-right:4px}
+/* COURSE GRID */
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.cc{background:var(--card);border:1px solid var(--cb);border-radius:16px;padding:22px;cursor:pointer;transition:border-color .2s,transform .2s,background .2s}
+.cc:hover{border-color:rgba(255,255,255,.14);transform:translateY(-2px);background:var(--ch)}
+.cc-top{display:flex;align-items:flex-start;gap:13px;margin-bottom:16px}
+.cc-ab{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:#fff;flex-shrink:0}
+.cc-nm{font-size:14px;font-weight:700;color:var(--text);line-height:1.35}
+.cc-ct{font-size:11px;color:var(--t3);margin-top:3px}
+.cc-bot{display:flex;align-items:center;justify-content:space-between;margin-top:13px}
+.cc-pl{font-size:11px;color:var(--t3)}
+.gi{margin-top:11px;border-top:1px solid rgba(255,255,255,.05);padding-top:11px}
+.gi-r{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:12px;color:var(--t2)}
+.gi-n{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:10px}
+.gi-g{font-weight:700;font-family:'Syne',sans-serif;font-size:13px}
 
-/* ── COURSE ROW ── */
-.course-row{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.course-row:last-child{border-bottom:none;padding-bottom:0}
-.c-abbr{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;flex-shrink:0}
-.c-info{flex:1;min-width:0}
-.c-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.c-sub{font-size:11px;color:var(--text3);margin-top:2px}
-.prog-bar{height:4px;background:rgba(255,255,255,.07);border-radius:2px;margin-top:7px}
-.prog-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .8s ease}
+/* GRADES PAGE */
+.grade-card{background:var(--card);border:1px solid var(--cb);border-radius:13px;padding:18px 20px;margin-bottom:10px;transition:background .15s}
+.grade-card:hover{background:var(--ch)}
+.gc-top{display:flex;align-items:center;justify-content:space-between}
+.gc-nm{font-size:14px;font-weight:600}
+.gc-g{font-family:'Syne',sans-serif;font-size:24px;font-weight:800}
+.gc-g.h{color:var(--ok)}.gc-g.m{color:var(--warn)}.gc-g.l{color:var(--danger)}.gc-g.n{color:var(--t3);font-size:15px}
+.gsi{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
+.gsi-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:7px;padding:9px 11px}
+.gsi-nm{font-size:10px;color:var(--t3);margin-bottom:3px}.gsi-v{font-size:14px;font-weight:700;font-family:'Syne',sans-serif}
 
-.grade-pill{font-size:12px;font-weight:700;padding:4px 11px;border-radius:999px;flex-shrink:0}
-.gp-high{background:rgba(52,211,153,.15);color:var(--ok)}
-.gp-mid{background:rgba(251,191,36,.15);color:var(--warn)}
-.gp-low{background:rgba(248,113,113,.15);color:var(--danger)}
-.gp-none{background:rgba(255,255,255,.07);color:var(--text3)}
-
-/* ── ASSIGN ROW ── */
-.assign-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.assign-row:last-child{border-bottom:none}
+/* ASSIGN PAGE */
+.sec-lbl{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin:20px 0 10px;display:flex;align-items:center;gap:8px}
+.sec-lbl::before{content:'';display:block;height:1px;flex:1;background:rgba(255,255,255,.06)}
+.acard{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--cb);border-radius:13px;padding:14px 18px;margin-bottom:8px;transition:background .15s;cursor:pointer}
+.acard:hover{background:var(--ch)}.acard.ov{border-color:rgba(248,113,113,.2)}.acard.done{opacity:.5}
 .a-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.a-info{flex:1;min-width:0}
-.a-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.a-course{font-size:11px;color:var(--text3);margin-top:2px}
-.days-tag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;flex-shrink:0}
-.dt-danger{background:rgba(248,113,113,.15);color:var(--danger);border:1px solid rgba(248,113,113,.25)}
-.dt-warn{background:rgba(251,191,36,.15);color:var(--warn)}
-.dt-ok{background:rgba(52,211,153,.12);color:var(--ok)}
-.dt-over{background:rgba(248,113,113,.2);color:var(--danger);border:1px solid rgba(248,113,113,.35)}
-.dt-done{background:rgba(255,255,255,.06);color:var(--text3)}
+.a-dot.open{background:var(--accent);box-shadow:0 0 7px rgba(56,189,248,.5)}.a-dot.ov{background:var(--danger)}.a-dot.done{background:var(--t3)}
+.a-info{flex:1;min-width:0}.a-nm{font-size:13px;font-weight:500;color:var(--text)}.done .a-nm{text-decoration:line-through;color:var(--t3)}
+.a-co{font-size:11px;color:var(--t3);margin-top:2px}.a-dt{font-size:10px;color:var(--t3);margin-top:2px}
 
-/* ── COURSE GRID ── */
-.courses-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-.course-card{background:var(--card);border:1px solid var(--card-b);border-radius:18px;padding:24px;transition:border-color .2s,transform .2s,background .2s;cursor:default}
-.course-card:hover{border-color:rgba(255,255,255,.14);transform:translateY(-3px);background:var(--card-h)}
-.cc-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
-.cc-abbr{width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:#fff;flex-shrink:0}
-.cc-name{font-size:14px;font-weight:700;color:var(--text);line-height:1.4}
-.cc-cat{font-size:12px;color:var(--text3);margin-top:3px}
-.cc-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
-.cc-prog-label{font-size:12px;color:var(--text3)}
+/* MESSAGES */
+.mc{display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--cb);border-radius:13px;padding:14px 18px;margin-bottom:8px;transition:background .15s}
+.mc:hover{background:var(--ch)}.mc.unread{border-color:rgba(56,189,248,.2);background:rgba(56,189,248,.04)}
+.md{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.md.unread{background:var(--accent);box-shadow:0 0 7px rgba(56,189,248,.6)}.md.read{background:var(--t3)}
+.mb{flex:1;min-width:0}.ms{font-size:13px;font-weight:600}.mf{font-size:11px;color:var(--t3);margin-top:2px}
+.mt-txt{font-size:12px;color:var(--t2);margin-top:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mtime{font-size:11px;color:var(--t3);flex-shrink:0}
 
-/* ── GRADE ITEMS ── */
-.grade-items{margin-top:12px;border-top:1px solid rgba(255,255,255,.05);padding-top:12px}
-.gi-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:12px;color:var(--text2)}
-.gi-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:12px}
-.gi-grade{font-weight:700;font-family:'Syne',sans-serif;font-size:14px}
+/* EMPTY */
+.em{text-align:center;padding:48px 20px;color:var(--t3)}
+.em-i{font-size:44px;margin-bottom:12px;opacity:.4}.em-t{font-size:14px}
 
-/* ── GRADES LIST ── */
-.grade-card{background:var(--card);border:1px solid var(--card-b);border-radius:14px;padding:20px 22px;margin-bottom:12px;transition:background .15s}
-.grade-card:hover{background:var(--card-h)}
-.grade-card-top{display:flex;align-items:center;justify-content:space-between}
-.gc-name{font-size:14px;font-weight:600;color:var(--text)}
-.gc-grade{font-family:'Syne',sans-serif;font-size:26px;font-weight:800}
-.gc-grade.high{color:var(--ok)} .gc-grade.mid{color:var(--warn)} .gc-grade.low{color:var(--danger)} .gc-grade.none{color:var(--text3);font-size:16px}
-.grade-sub-items{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.gsi{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px 12px}
-.gsi-name{font-size:11px;color:var(--text3);margin-bottom:4px}
-.gsi-val{font-size:15px;font-weight:700;font-family:'Syne',sans-serif;color:var(--text)}
+/* COURSE CONTENT PAGE */
+.course-header{background:linear-gradient(135deg,rgba(56,189,248,.1),rgba(129,140,248,.1));border:1px solid rgba(56,189,248,.2);border-radius:16px;padding:24px;margin-bottom:20px;display:flex;align-items:center;gap:18px}
+.ch-ab{width:60px;height:60px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:#fff}
+.ch-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800}
+.ch-meta{font-size:13px;color:var(--t2);margin-top:4px}
+.section-block{margin-bottom:16px}
+.section-name{font-size:12px;font-weight:700;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;padding:10px 14px;background:rgba(255,255,255,.02);border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.section-name::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.05)}
+.activity-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border:1px solid var(--cb);border-radius:12px;margin-bottom:6px;cursor:pointer;transition:background .15s,border-color .15s,transform .1s}
+.activity-item:hover{background:var(--ch);border-color:rgba(255,255,255,.14);transform:translateX(-2px)}
+.act-type-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.act-name{font-size:13px;font-weight:500;flex:1}
+.act-arrow{color:var(--t3);font-size:14px}
 
-/* ── ASSIGNMENTS PAGE ── */
-.sec-label{font-size:12px;font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
-.sec-label::before{content:'';display:block;height:1px;flex:1;background:rgba(255,255,255,.06)}
-.assign-card{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--card-b);border-radius:14px;padding:16px 20px;margin-bottom:10px;transition:background .15s,border-color .15s}
-.assign-card:hover{background:var(--card-h)}
-.assign-card.overdue{border-color:rgba(248,113,113,.2)}
-.assign-card.completed{opacity:.5}
-.ac-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.ac-dot.open{background:var(--accent);box-shadow:0 0 8px rgba(56,189,248,.5)}
-.ac-dot.overdue{background:var(--danger)}
-.ac-dot.done{background:var(--text3)}
-.ac-info{flex:1;min-width:0}
-.ac-name{font-size:14px;font-weight:500;color:var(--text)} .completed .ac-name{text-decoration:line-through;color:var(--text3)}
-.ac-course{font-size:12px;color:var(--text3);margin-top:3px}
-.ac-date{font-size:11px;color:var(--text3);margin-top:2px}
+/* ACTIVITY VIEWER */
+.activity-viewer{background:var(--card);border:1px solid var(--cb);border-radius:16px;padding:24px}
+.av-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px}
+.av-description{font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:20px}
 
-/* ── MESSAGES ── */
-.msg-card{display:flex;align-items:flex-start;gap:14px;background:var(--card);border:1px solid var(--card-b);border-radius:14px;padding:16px 20px;margin-bottom:10px;transition:background .15s}
-.msg-card:hover{background:var(--card-h)}
-.msg-card.unread{border-color:rgba(56,189,248,.2);background:rgba(56,189,248,.04)}
-.msg-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
-.msg-dot.unread{background:var(--accent);box-shadow:0 0 8px rgba(56,189,248,.6)}
-.msg-dot.read{background:var(--text3)}
-.msg-body{flex:1;min-width:0}
-.msg-subject{font-size:14px;font-weight:600;color:var(--text)}
-.msg-from{font-size:12px;color:var(--text3);margin-top:2px}
-.msg-text{font-size:12px;color:var(--text2);margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.msg-time{font-size:11px;color:var(--text3);flex-shrink:0}
+/* FORUM */
+.discussion-item{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--card);border:1px solid var(--cb);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:background .15s}
+.discussion-item:hover{background:var(--ch)}
+.di-subject{font-size:13px;font-weight:600;flex:1}
+.di-meta{font-size:11px;color:var(--t3)}
+.post-card{background:rgba(255,255,255,.03);border:1px solid var(--cb);border-radius:12px;padding:16px;margin-bottom:10px}
+.post-author{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px}
+.post-subject{font-size:14px;font-weight:600;margin-bottom:8px}
+.post-content{font-size:13px;color:var(--t2);line-height:1.7}
+.post-time{font-size:11px;color:var(--t3);margin-top:8px}
+.reply-box{background:rgba(255,255,255,.03);border:1px solid var(--cb);border-radius:12px;padding:18px;margin-top:20px}
+.reply-title{font-size:14px;font-weight:600;margin-bottom:12px}
+.reply-ta{width:100%;padding:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:var(--text);font-family:'Noto Sans Hebrew',sans-serif;font-size:13px;min-height:100px;outline:none;resize:vertical;transition:border-color .2s}
+.reply-ta:focus{border-color:var(--accent)}
 
-/* ── PROGRESS RING ── */
-.ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
-.ring-label{position:absolute;font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--text)}
+/* ATTENDANCE */
+.att-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.att-stat{background:var(--card);border:1px solid var(--cb);border-radius:12px;padding:16px;text-align:center}
+.att-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800}
+.att-lbl{font-size:11px;color:var(--t3);margin-top:4px}
+.att-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--card);border:1px solid var(--cb);border-radius:10px;margin-bottom:6px}
+.att-status{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.att-date{font-size:13px;flex:1}
+.att-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+.att-present{background:rgba(52,211,153,.15);color:var(--ok)}
+.att-absent{background:rgba(248,113,113,.15);color:var(--danger)}
+.att-unknown{background:rgba(255,255,255,.07);color:var(--t3)}
 
-/* ── EMPTY ── */
-.empty{text-align:center;padding:48px 20px;color:var(--text3)}
-.empty-icon{font-size:44px;margin-bottom:12px;opacity:.4}
-.empty-text{font-size:14px}
+/* FILE DOWNLOAD */
+.file-card{background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(129,140,248,.08));border:1px solid rgba(56,189,248,.2);border-radius:14px;padding:24px;text-align:center}
+.file-icon{font-size:52px;margin-bottom:14px}
+.file-name{font-size:16px;font-weight:600;margin-bottom:8px}
+.file-desc{font-size:13px;color:var(--t2);margin-bottom:20px}
+.btn-download{background:linear-gradient(135deg,#38bdf8,#818cf8);border:none;border-radius:11px;color:#fff;font-size:14px;font-weight:700;font-family:'Noto Sans Hebrew',sans-serif;padding:12px 28px;cursor:pointer;transition:opacity .2s,transform .15s;box-shadow:0 8px 20px rgba(56,189,248,.25)}
+.btn-download:hover{opacity:.9;transform:translateY(-1px)}
 
-/* ── CHIPS ── */
-.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.07);color:var(--text3)}
-.chip.warn{background:rgba(251,191,36,.12);color:var(--warn)}
-
-/* ── REFRESH BTN ── */
-.btn-refresh{background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);border-radius:8px;color:var(--accent);font-size:12px;font-weight:600;font-family:'Noto Sans Hebrew',sans-serif;padding:6px 14px;cursor:pointer;transition:background .15s}
-.btn-refresh:hover{background:rgba(56,189,248,.18)}
-.btn-refresh:disabled{opacity:.5;cursor:not-allowed}
+/* ASSIGN SUBMIT */
+.submit-box{background:rgba(255,255,255,.03);border:1px solid var(--cb);border-radius:12px;padding:18px;margin-top:18px}
+.submit-ta{width:100%;padding:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:var(--text);font-family:'Noto Sans Hebrew',sans-serif;font-size:13px;min-height:150px;outline:none;resize:vertical;transition:border-color .2s}
+.submit-ta:focus{border-color:var(--accent)}
+.success-box{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);border-radius:9px;padding:12px;font-size:13px;color:var(--ok);text-align:center;margin-top:10px}
 </style>
 </head>
-<body>
-<div id="root"></div>
+<body><div id="root"></div>
 <script type="text/babel">
-const {useState, useEffect, useCallback} = React;
-const API = window.location.origin;
+const {useState,useEffect,useCallback,useRef}=React;
+const API=window.location.origin;
 
 // ── helpers ──────────────────────────────────────────────────────────────────
-const COLORS=['#38bdf8','#818cf8','#34d399','#f472b6','#fb923c','#a78bfa','#22d3ee','#4ade80','#facc15','#f87171'];
-function courseColor(name=''){let h=0;for(let c of name)h=c.charCodeAt(0)+((h<<5)-h);return COLORS[Math.abs(h)%COLORS.length]}
-function abbr(name=''){const w=name.trim().split(/\s+/);return w.length>=2?(w[0][0]+w[1][0]).toUpperCase():name.slice(0,2).toUpperCase()}
-function gradeClass(g){if(typeof g!=='number')return 'none';if(g>=85)return'high';if(g>=60)return'mid';return'low'}
-function gradeColor(g){if(typeof g!=='number')return'var(--text3)';if(g>=85)return'var(--ok)';if(g>=60)return'var(--warn)';return'var(--danger)'}
-function fmtDate(ts){return new Date(ts*1000).toLocaleDateString('he-IL',{day:'numeric',month:'short'})}
-function timeAgo(ts){const d=Date.now()/1000-ts;if(d<60)return'עכשיו';if(d<3600)return`לפני ${Math.floor(d/60)} דק'`;if(d<86400)return`לפני ${Math.floor(d/3600)} ש'`;return`לפני ${Math.floor(d/86400)} ימים`}
-function dayTag(a){
-  if(a.completed) return{cls:'dt-done',label:'הושלם'};
-  if(a.overdue) return{cls:'dt-over',label:'באיחור'};
-  if(a.daysLeft<=0) return{cls:'dt-danger',label:'היום'};
-  if(a.daysLeft===1) return{cls:'dt-danger',label:'מחר'};
-  if(a.daysLeft<=3) return{cls:'dt-danger',label:`${a.daysLeft} ימים`};
-  if(a.daysLeft<=7) return{cls:'dt-warn',label:`${a.daysLeft} ימים`};
-  return{cls:'dt-ok',label:`${a.daysLeft} ימים`};
+const COLS=['#38bdf8','#818cf8','#34d399','#f472b6','#fb923c','#a78bfa','#22d3ee','#4ade80','#facc15','#f87171'];
+function cc(n=''){let h=0;for(let c of n)h=c.charCodeAt(0)+((h<<5)-h);return COLS[Math.abs(h)%COLS.length]}
+function ab(n=''){const w=n.trim().split(/\s+/);return w.length>=2?(w[0][0]+w[1][0]).toUpperCase():n.slice(0,2).toUpperCase()}
+function gc(g){if(typeof g!=='number')return'n';if(g>=85)return'h';if(g>=60)return'm';return'l'}
+function gcol(g){if(typeof g!=='number')return'var(--t3)';if(g>=85)return'var(--ok)';if(g>=60)return'var(--warn)';return'var(--danger)'}
+function fmtD(ts){return new Date(ts*1000).toLocaleDateString('he-IL',{day:'numeric',month:'short'})}
+function ago(ts){const d=Date.now()/1000-ts;if(d<60)return'עכשיו';if(d<3600)return`${Math.floor(d/60)} דק'`;if(d<86400)return`${Math.floor(d/3600)} ש'`;return`${Math.floor(d/86400)} ימים`}
+function dtag(a){
+  if(a.completed)return{cls:'done',label:'הושלם'};
+  if(a.overdue)return{cls:'dov',label:'באיחור'};
+  if(a.daysLeft<=0)return{cls:'dd',label:'היום'};
+  if(a.daysLeft<=2)return{cls:'dd',label:`${a.daysLeft} ימים`};
+  if(a.daysLeft<=7)return{cls:'dw',label:`${a.daysLeft} ימים`};
+  return{cls:'dok',label:`${a.daysLeft} ימים`};
+}
+const TYPE_ICON={assign:'📝',forum:'💬',resource:'📄',quiz:'🧪',attendance:'✅',url:'🔗',folder:'📁',page:'📖',workshop:'🔧',choice:'🗳️',label:'🏷️',unknown:'📌'};
+const TYPE_COLOR={assign:'rgba(56,189,248,.15)',forum:'rgba(129,140,248,.15)',resource:'rgba(52,211,153,.15)',quiz:'rgba(251,191,36,.15)',attendance:'rgba(244,114,182,.15)',url:'rgba(251,146,60,.15)',default:'rgba(255,255,255,.07)'};
+
+async function apiFetch(path,opts={}){
+  const r=await fetch(API+path,opts);
+  const d=await r.json();
+  if(!r.ok) throw new Error(d.error||'שגיאת שרת');
+  return d;
 }
 
-// ── Progress Ring ─────────────────────────────────────────────────────────
-function Ring({value=0,size=80,stroke=7,color='#38bdf8'}){
-  const r=size/2-stroke;const circ=2*Math.PI*r;const pct=Math.min(100,Math.max(0,value));
-  return(
-    <div className="ring-wrap" style={{width:size,height:size}}>
-      <svg width={size} height={size} style={{transform:'rotate(-90deg)'}}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,.07)" strokeWidth={stroke}/>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={stroke}
-          strokeDasharray={circ} strokeDashoffset={circ*(1-pct/100)} strokeLinecap="round"
-          style={{transition:'stroke-dashoffset .8s ease'}}/>
-      </svg>
-      <div className="ring-label" style={{fontSize:size>70?18:13,color}}>{pct}%</div>
-    </div>
-  );
-}
+// ── Spinner ───────────────────────────────────────────────────────────────────
+const Spin=()=><span className="spin"/>;
+const Loading=({text='טוען...'})=><div className="ld"><div className="ld-sp"/><div className="ld-tx">{text}</div></div>;
 
-// ── Login ─────────────────────────────────────────────────────────────────
+// ── Login ─────────────────────────────────────────────────────────────────────
 function LoginPage({onLogin}){
   const[u,setU]=useState('');const[p,setP]=useState('');const[loading,setL]=useState(false);const[err,setErr]=useState('');
-  async function submit(e){
+  async function sub(e){
     e.preventDefault();if(!u||!p){setErr('נא למלא את כל השדות');return}
     setL(true);setErr('');
     try{
-      const r=await fetch(`${API}/api/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u.trim(),password:p})});
-      const d=await r.json();
-      if(!r.ok)throw new Error(d.error||'שגיאת התחברות');
+      const d=await apiFetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u.trim(),password:p})});
       localStorage.setItem('sessionId',d.sessionId);localStorage.setItem('fullname',d.fullname);
       onLogin(d.sessionId,d.fullname);
     }catch(e){setErr(e.message)}finally{setL(false)}
   }
   return(
-    <div className="login-page">
-      <div className="orb orb1"/><div className="orb orb2"/><div className="orb orb3"/>
-      <div className="login-card fade-in">
-        <div className="login-logo"><div className="logo-icon">KC</div><div className="logo-text">KodCode</div></div>
-        <div className="login-sub">פורטל הסטודנטים | KodCode Academy</div>
-        <form onSubmit={submit}>
-          <div className="form-group">
-            <label className="form-label">תעודת זהות</label>
-            <input className="form-input" type="text" placeholder="הכנס תעודת זהות" value={u} onChange={e=>setU(e.target.value)} disabled={loading}/>
-          </div>
-          <div className="form-group">
-            <label className="form-label">סיסמה</label>
-            <input className="form-input" type="password" placeholder="הסיסמה שלך" value={p} onChange={e=>setP(e.target.value)} disabled={loading}/>
-          </div>
-          <button className="btn-primary" type="submit" disabled={loading}>
-            {loading&&<span className="spinner"/>}{loading?'מתחבר...':'כניסה למערכת'}
-          </button>
-          {err&&<div className="err-box">⚠️ {err}</div>}
+    <div className="lp">
+      <div className="orb o1"/><div className="orb o2"/><div className="orb o3"/>
+      <div className="lcard fade">
+        <div className="llogo"><div className="licon">KC</div><div className="ltxt">KodCode Portal</div></div>
+        <div className="lsub">פורטל הסטודנטים | KodCode Academy</div>
+        <form onSubmit={sub}>
+          <div className="fg"><label className="fl">תעודת זהות</label><input className="fi" type="text" placeholder="מספר תעודת זהות" value={u} onChange={e=>setU(e.target.value)} disabled={loading}/></div>
+          <div className="fg"><label className="fl">סיסמה</label><input className="fi" type="password" placeholder="הסיסמה שלך" value={p} onChange={e=>setP(e.target.value)} disabled={loading}/></div>
+          <button className="btnp" type="submit" disabled={loading}>{loading&&<Spin/>}{loading?'מתחבר...':'כניסה'}</button>
+          {err&&<div className="eb">⚠️ {err}</div>}
         </form>
       </div>
     </div>
   );
 }
 
-// ── Stat Card ─────────────────────────────────────────────────────────────
-function StatCard({icon,value,label,sub,color='#38bdf8',grad}){
-  return(
-    <div className="stat-card" style={{'--grad':grad||`radial-gradient(circle at top right,${color},transparent)`}}>
-      <div className="stat-card-icon">{icon}</div>
-      <div className="stat-card-value" style={{color}}>{value??'—'}</div>
-      <div className="stat-card-label">{label}</div>
-      {sub&&<div className="stat-card-sub">{sub}</div>}
-    </div>
-  );
-}
-
-// ── Overview ──────────────────────────────────────────────────────────────
-function Overview({data,fullname}){
-  const {courses=[],grades=[],assignments=[],stats={}}=data;
+// ── Overview ──────────────────────────────────────────────────────────────────
+function Overview({data,fullname,onCourseClick,onAssignClick}){
+  const{courses=[],grades=[],assignments=[],stats={}}=data;
+  const gmap={};grades.forEach(g=>{gmap[g.courseid]=g.grade});
   const open=assignments.filter(a=>!a.completed&&!a.overdue).sort((a,b)=>a.duedate-b.duedate);
-  const top5=courses.slice(0,5);
-  const gradeMap={};grades.forEach(g=>{gradeMap[g.courseid]=g.grade});
   return(
-    <div className="fade-in">
-      <div className="stats-grid">
-        <StatCard icon="📚" value={stats.totalCourses} label="קורסים פעילים" color="#38bdf8"/>
-        <StatCard icon="🏆" value={stats.avgGrade!=null?stats.avgGrade+'%':'—'} label="ממוצע ציונים" color={gradeColor(stats.avgGrade)} sub={stats.avgGrade>=85?'מצוין!':stats.avgGrade>=60?'טוב':'טעון שיפור'}/>
-        <StatCard icon="📝" value={stats.openAssignments} label="משימות פתוחות" color="#818cf8"/>
-        <StatCard icon="🔴" value={stats.overdueAssignments} label="באיחור" color="#f87171"/>
-        <StatCard icon="✅" value={stats.completedAssignments} label="הושלמו" color="#34d399"/>
-        <StatCard icon="💬" value={stats.unreadMessages} label="הודעות חדשות" color="#f472b6"/>
+    <div className="fade">
+      <div className="sg">
+        <div className="sc"><div className="sc-icon">📚</div><div className="sc-val" style={{color:'var(--accent)'}}>{stats.totalCourses}</div><div className="sc-lbl">קורסים</div></div>
+        <div className="sc"><div className="sc-icon">🏆</div><div className="sc-val" style={{color:gcol(stats.avgGrade)}}>{stats.avgGrade!=null?stats.avgGrade+'%':'—'}</div><div className="sc-lbl">ממוצע</div></div>
+        <div className="sc"><div className="sc-icon">📝</div><div className="sc-val" style={{color:'var(--a2)'}}>{stats.openAssignments}</div><div className="sc-lbl">משימות פתוחות</div></div>
+        <div className="sc"><div className="sc-icon">🔴</div><div className="sc-val" style={{color:'var(--danger)'}}>{stats.overdueAssignments}</div><div className="sc-lbl">באיחור</div></div>
+        <div className="sc"><div className="sc-icon">✅</div><div className="sc-val" style={{color:'var(--ok)'}}>{stats.completedAssignments}</div><div className="sc-lbl">הושלמו</div></div>
+        <div className="sc"><div className="sc-icon">💬</div><div className="sc-val" style={{color:'var(--a4)'}}>{stats.unreadMessages}</div><div className="sc-lbl">הודעות חדשות</div></div>
       </div>
-
-      <div className="two-col">
-        <div className="sc">
-          <div className="sc-title">📚 הקורסים שלי <span className="sc-count">{courses.length}</span></div>
-          {top5.length===0?<div className="empty"><div className="empty-icon">📭</div><div className="empty-text">אין קורסים</div></div>
-          :top5.map(c=>{
-            const g=gradeMap[c.id];const gc=gradeClass(g);
-            return(
-              <div key={c.id} className="course-row">
-                <div className="c-abbr" style={{background:courseColor(c.fullname)}}>{abbr(c.fullname)}</div>
-                <div className="c-info">
-                  <div className="c-name">{c.fullname}</div>
-                  <div className="c-sub">{c.shortname||c.category}</div>
-                  <div className="prog-bar"><div className="prog-fill" style={{width:c.progress+'%'}}/></div>
-                </div>
-                {g!=null?<span className={`grade-pill gp-${gc}`}>{g}</span>:<span className="grade-pill gp-none">—</span>}
-              </div>
-            );
-          })}
+      <div className="tc">
+        <div className="card">
+          <div className="card-title">📚 קורסים <span className="cnt">{courses.length}</span></div>
+          {courses.length===0?<div className="em"><div className="em-i">📭</div><div className="em-t">אין קורסים</div></div>
+          :courses.map(c=>{const g=gmap[c.id];return(
+            <div key={c.id} className="cr" onClick={()=>onCourseClick(c)}>
+              <div className="ca" style={{background:cc(c.fullname)}}>{ab(c.fullname)}</div>
+              <div className="ci"><div className="cn">{c.fullname}</div><div className="csub">{c.shortname}</div><div className="pb"><div className="pf" style={{width:c.progress+'%'}}/></div></div>
+              {g!=null?<span className={`gp g${gc(g)}`}>{g}</span>:<span className="gp gn">—</span>}
+            </div>
+          );})}
         </div>
-
-        <div className="sc">
-          <div className="sc-title">⏰ משימות קרובות <span className="sc-count">{open.length}</span></div>
-          {open.length===0?<div className="empty"><div className="empty-icon">🎉</div><div className="empty-text">אין משימות פתוחות</div></div>
-          :open.slice(0,6).map(a=>{
-            const{cls,label}=dayTag(a);
-            return(
-              <div key={a.id} className="assign-row">
-                <div className="a-dot" style={{background:'var(--accent)'}}/>
-                <div className="a-info"><div className="a-name">{a.name}</div><div className="a-course">{a.coursename}</div></div>
-                <span className={`days-tag ${cls}`}>{label}</span>
-              </div>
-            );
-          })}
+        <div className="card">
+          <div className="card-title">⏰ משימות קרובות <span className="cnt">{open.length}</span></div>
+          {open.length===0?<div className="em"><div className="em-i">🎉</div><div className="em-t">אין משימות פתוחות!</div></div>
+          :open.slice(0,6).map(a=>{const{cls,label}=dtag(a);return(
+            <div key={a.id} className="ar" style={{cursor:'pointer'}} onClick={()=>onAssignClick(a)}>
+              <div className="ad" style={{background:'var(--accent)'}}/>
+              <div className="ai"><div className="an">{a.name}</div><div className="ac">{a.coursename}</div></div>
+              <span className={`dt ${cls}`}>{label}</span>
+            </div>
+          );})}
         </div>
       </div>
     </div>
   );
 }
 
-// ── Courses ───────────────────────────────────────────────────────────────
-function Courses({data}){
-  const{courses=[]}=data;
-  if(!courses.length)return<div className="empty fade-in"><div className="empty-icon">📚</div><div className="empty-text">לא נמצאו קורסים</div></div>;
-  return(
-    <div className="courses-grid fade-in">
-      {courses.map(c=>{
-        const gc=gradeClass(c.grade);
-        return(
-          <div key={c.id} className="course-card">
-            <div className="cc-top">
-              <div className="cc-abbr" style={{background:courseColor(c.fullname)}}>{abbr(c.fullname)}</div>
-              <div style={{flex:1}}>
-                <div className="cc-name">{c.fullname}</div>
-                <div className="cc-cat">{c.shortname||c.category}</div>
-              </div>
-              {c.grade!=null&&<div style={{fontSize:22,fontFamily:'Syne',fontWeight:800,color:gradeColor(c.grade)}}>{c.grade}</div>}
-            </div>
-            <div className="prog-bar"><div className="prog-fill" style={{width:c.progress+'%'}}/></div>
-            <div className="cc-bottom">
-              <span className="cc-prog-label">{c.progress}% הושלם</span>
-              {c.grade!=null?<span className={`grade-pill gp-${gc}`}>{c.grade>=85?'מצוין':c.grade>=75?'טוב מאוד':c.grade>=60?'טוב':'לשיפור'}</span>:<span className="grade-pill gp-none">אין ציון</span>}
-            </div>
-            {c.gradeItems&&c.gradeItems.length>0&&(
-              <div className="grade-items">
-                {c.gradeItems.slice(0,4).map((it,i)=>(
-                  <div key={i} className="gi-row">
-                    <span className="gi-name">{it.name}</span>
-                    <span className="gi-grade" style={{color:gradeColor(it.grade)}}>{it.grade}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
+// ── Course Content ────────────────────────────────────────────────────────────
+function CourseContent({course,sessionId,onActivity,onBack}){
+  const[sections,setSections]=useState([]);const[loading,setLoading]=useState(true);const[err,setErr]=useState('');
+  useEffect(()=>{
+    (async()=>{
+      setLoading(true);setErr('');
+      try{const d=await apiFetch(`/api/course/${course.id}/content?sessionId=${sessionId}`);setSections(d);}
+      catch(e){setErr(e.message);}
+      finally{setLoading(false);}
+    })();
+  },[course.id]);
 
-// ── Grades ────────────────────────────────────────────────────────────────
-function Grades({data}){
-  const{grades=[]}=data;
-  if(!grades.length)return<div className="empty fade-in"><div className="empty-icon">📊</div><div className="empty-text">לא נמצאו ציונים</div></div>;
+  if(loading)return<Loading text="טוען תוכן קורס..."/>;
+  if(err)return<div className="eb">⚠️ {err}</div>;
   return(
-    <div className="fade-in">
-      {grades.map((g,i)=>{
-        const gc=gradeClass(g.grade);
-        return(
-          <div key={i} className="grade-card">
-            <div className="grade-card-top">
-              <div>
-                <div className="gc-name">{g.coursename}</div>
-                {g.items&&g.items.length>0&&<div style={{fontSize:11,color:'var(--text3)',marginTop:3}}>{g.items.length} פריטי ציון</div>}
+    <div className="fade">
+      <div className="course-header">
+        <div className="ch-ab" style={{background:cc(course.fullname)}}>{ab(course.fullname)}</div>
+        <div>
+          <div className="ch-title">{course.fullname}</div>
+          <div className="ch-meta">{course.shortname} · {course.progress}% הושלם {course.grade!=null&&`· ציון: ${course.grade}`}</div>
+        </div>
+      </div>
+      {sections.length===0&&<div className="em"><div className="em-i">📭</div><div className="em-t">אין תוכן זמין</div></div>}
+      {sections.map((sec,si)=>(
+        <div key={si} className="section-block">
+          {sec.name&&sec.name!=='כללי'&&<div className="section-name">{sec.name}</div>}
+          {sec.activities.map((act,ai)=>{
+            const icon=TYPE_ICON[act.type]||TYPE_ICON.unknown;
+            const bg=TYPE_COLOR[act.type]||TYPE_COLOR.default;
+            return(
+              <div key={ai} className="activity-item" onClick={()=>onActivity(act)}>
+                <div className="act-type-icon" style={{background:bg}}>{icon}</div>
+                <div className="act-name">{act.name}</div>
+                <div style={{fontSize:10,color:'var(--t3)',padding:'2px 7px',background:'rgba(255,255,255,.05)',borderRadius:999}}>{act.type}</div>
+                <div className="act-arrow">›</div>
               </div>
-              <div className={`gc-grade ${gc}`}>{g.grade!=null?g.grade+'%':'—'}</div>
-            </div>
-            {g.items&&g.items.length>0&&(
-              <div className="grade-sub-items">
-                {g.items.map((it,j)=>(
-                  <div key={j} className="gsi">
-                    <div className="gsi-name">{it.name}</div>
-                    <div className="gsi-val" style={{color:gradeColor(it.grade)}}>{it.grade}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ── Assignments ───────────────────────────────────────────────────────────
-function Assignments({data}){
-  const{assignments=[]}=data;
-  const overdue=assignments.filter(a=>a.overdue&&!a.completed).sort((a,b)=>a.duedate-b.duedate);
-  const open=assignments.filter(a=>!a.completed&&!a.overdue).sort((a,b)=>a.duedate-b.duedate);
-  const done=assignments.filter(a=>a.completed);
-  const Section=({list,title,cls})=>(
-    list.length>0&&(
-      <>
-        <div className="sec-label">{title} ({list.length})</div>
-        {list.map(a=>{
-          const{cls:tc,label}=dayTag(a);
-          const dotCls=a.completed?'done':a.overdue?'overdue':'open';
-          return(
-            <div key={a.id} className={`assign-card ${cls||''}`}>
-              <div className={`ac-dot ${dotCls}`}/>
-              <div className="ac-info">
-                <div className="ac-name">{a.name}</div>
-                <div className="ac-course">{a.coursename}</div>
-                <div className="ac-date">{fmtDate(a.duedate)}</div>
-              </div>
-              <span className={`days-tag ${tc}`}>{label}</span>
-            </div>
-          );
-        })}
-      </>
-    )
-  );
-  if(!assignments.length)return<div className="empty fade-in"><div className="empty-icon">📝</div><div className="empty-text">אין משימות</div></div>;
-  return(
-    <div className="fade-in">
-      <Section list={overdue} title="🔴 באיחור" cls="overdue"/>
-      <Section list={open} title="📌 פתוחות"/>
-      <Section list={done} title="✅ הושלמו" cls="completed"/>
-    </div>
-  );
-}
-
-// ── Messages ──────────────────────────────────────────────────────────────
-function Messages({data}){
-  const{messages=[]}=data;
-  if(!messages.length)return<div className="empty fade-in"><div className="empty-icon">💬</div><div className="empty-text">אין הודעות</div></div>;
-  return(
-    <div className="fade-in">
-      {messages.map(m=>(
-        <div key={m.id} className={`msg-card ${m.read?'':'unread'}`}>
-          <div className={`msg-dot ${m.read?'read':'unread'}`}/>
-          <div className="msg-body">
-            <div className="msg-subject">{m.subject}</div>
-            <div className="msg-from">מאת: {m.sender}</div>
-            {m.text&&<div className="msg-text">{m.text.slice(0,200)}</div>}
-          </div>
-          <div className="msg-time">{timeAgo(m.timecreated)}</div>
+            );
+          })}
         </div>
       ))}
     </div>
   );
 }
 
-// ── Dashboard ─────────────────────────────────────────────────────────────
+// ── Activity Viewer ───────────────────────────────────────────────────────────
+function ActivityViewer({activity,sessionId,onBack,onDiscussion}){
+  const[data,setData]=useState(null);const[loading,setLoading]=useState(true);const[err,setErr]=useState('');
+  const[replyText,setReplyText]=useState('');const[submitText,setSubmitText]=useState('');const[submitting,setSubmitting]=useState(false);const[success,setSuccess]=useState('');
+
+  useEffect(()=>{
+    (async()=>{
+      setLoading(true);setErr('');setSuccess('');
+      try{const d=await apiFetch(`/api/activity/${activity.type}/${activity.cmid}?sessionId=${sessionId}`);setData(d);}
+      catch(e){setErr(e.message);}
+      finally{setLoading(false);}
+    })();
+  },[activity.cmid]);
+
+  async function submitAssign(){
+    if(!submitText.trim())return;
+    setSubmitting(true);
+    try{
+      const d=await apiFetch(`/api/assign/${activity.cmid}/submit?sessionId=${sessionId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId,onlineText:submitText})});
+      setSuccess(d.message);
+    }catch(e){setErr(e.message);}finally{setSubmitting(false);}
+  }
+
+  if(loading)return<Loading text="טוען פעילות..."/>;
+  if(err)return<div className="eb">⚠️ {err}</div>;
+  if(!data)return null;
+
+  return(
+    <div className="fade activity-viewer">
+      <div className="av-title">{data.title||activity.name}</div>
+
+      {/* RESOURCE */}
+      {data.type==='resource'&&(
+        <div className="file-card">
+          <div className="file-icon">📄</div>
+          <div className="file-name">{data.title}</div>
+          {data.description&&<div className="file-desc">{data.description}</div>}
+          {data.fileUrl
+            ?<a href={`/api/proxy-file?url=${encodeURIComponent(data.fileUrl)}&sessionId=${sessionId}`} target="_blank" style={{textDecoration:'none'}}><button className="btn-download">⬇️ הורד קובץ</button></a>
+            :<a href={activity.link} target="_blank" style={{textDecoration:'none'}}><button className="btn-download">🔗 פתח ב-Moodle</button></a>
+          }
+        </div>
+      )}
+
+      {/* PAGE */}
+      {data.type==='page'&&(
+        <div className="av-description" dangerouslySetInnerHTML={{__html:data.content||'אין תוכן'}}/>
+      )}
+
+      {/* FORUM */}
+      {data.type==='forum'&&(
+        <>
+          <div className="av-description">פורום · {data.discussions?.length||0} דיונים</div>
+          {(data.discussions||[]).map(d=>(
+            <div key={d.id} className="discussion-item" onClick={()=>onDiscussion(d)}>
+              <div style={{fontSize:24}}>💬</div>
+              <div style={{flex:1}}>
+                <div className="di-subject">{d.subject}</div>
+                <div className="di-meta">מאת: {d.author} · {d.replies} תגובות</div>
+              </div>
+              <div className="act-arrow">›</div>
+            </div>
+          ))}
+          {(!data.discussions||data.discussions.length===0)&&<div className="em"><div className="em-i">💬</div><div className="em-t">אין דיונים בפורום זה</div></div>}
+        </>
+      )}
+
+      {/* ASSIGNMENT */}
+      {data.type==='assign'&&(
+        <>
+          {data.description&&<div className="av-description">{data.description}</div>}
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
+            {data.dueDate&&<div style={{background:'rgba(255,255,255,.04)',border:'1px solid var(--cb)',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:11,color:'var(--t3)',marginBottom:4}}>מועד הגשה</div><div style={{fontSize:13,fontWeight:600}}>{data.dueDate}</div></div>}
+            <div style={{background:'rgba(255,255,255,.04)',border:'1px solid var(--cb)',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:11,color:'var(--t3)',marginBottom:4}}>סטטוס</div><div style={{fontSize:13,fontWeight:600,color:data.status?.includes('Submit')||data.status?.includes('הוגש')?'var(--ok)':'var(--warn)'}}>{data.status||'לא הוגש'}</div></div>
+          </div>
+          {data.textSubmission&&data.canSubmit&&(
+            <div className="submit-box">
+              <div className="reply-title">✏️ הגשת מטלה (טקסט)</div>
+              <textarea className="submit-ta" placeholder="כתוב את המטלה שלך כאן..." value={submitText} onChange={e=>setSubmitText(e.target.value)}/>
+              <button className="btn-sm" style={{marginTop:10}} onClick={submitAssign} disabled={submitting||!submitText.trim()}>{submitting?<><Spin/>מגיש...</>:'📤 הגש מטלה'}</button>
+              {success&&<div className="success-box">✅ {success}</div>}
+            </div>
+          )}
+          {!data.textSubmission&&<div style={{marginTop:16}}><a href={activity.link} target="_blank" style={{textDecoration:'none'}}><button className="btn-sm">🔗 פתח ב-Moodle להגשה</button></a></div>}
+        </>
+      )}
+
+      {/* ATTENDANCE */}
+      {data.type==='attendance'&&(
+        <>
+          <div className="att-summary">
+            <div className="att-stat"><div className="att-val" style={{color:'var(--ok)'}}>{data.summary?.present||0}</div><div className="att-lbl">נוכחות</div></div>
+            <div className="att-stat"><div className="att-val" style={{color:'var(--danger)'}}>{data.summary?.absent||0}</div><div className="att-lbl">היעדרויות</div></div>
+            <div className="att-stat"><div className="att-val" style={{color:gcol(data.summary?.pct)}}>{data.summary?.pct||0}%</div><div className="att-lbl">אחוז נוכחות</div></div>
+          </div>
+          {(data.sessions||[]).map((s,i)=>(
+            <div key={i} className="att-row">
+              <div className="att-status" style={{background:s.status==='present'?'var(--ok)':s.status==='absent'?'var(--danger)':'var(--t3)'}}/>
+              <div className="att-date">{s.date} {s.sessionType&&`· ${s.sessionType}`}</div>
+              <span className={`att-tag att-${s.status}`}>{s.statusLabel}</span>
+              {s.points&&<span style={{fontSize:11,color:'var(--t3)'}}>{s.points}</span>}
+            </div>
+          ))}
+        </>
+      )}
+
+      {/* UNKNOWN */}
+      {!['resource','page','forum','assign','attendance'].includes(data.type)&&(
+        <div style={{textAlign:'center',padding:20}}>
+          <div style={{fontSize:40,marginBottom:12}}>🔗</div>
+          <a href={activity.link} target="_blank" style={{textDecoration:'none'}}><button className="btn-sm">פתח ב-Moodle</button></a>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Discussion Viewer ─────────────────────────────────────────────────────────
+function DiscussionViewer({discussion,sessionId,onBack}){
+  const[data,setData]=useState(null);const[loading,setLoading]=useState(true);const[err,setErr]=useState('');
+  const[reply,setReply]=useState('');const[sending,setSending]=useState(false);const[success,setSuccess]=useState('');
+
+  useEffect(()=>{
+    (async()=>{
+      setLoading(true);setErr('');
+      try{const d=await apiFetch(`/api/forum/discussion/${discussion.id}?sessionId=${sessionId}`);setData(d);}
+      catch(e){setErr(e.message);}finally{setLoading(false);}
+    })();
+  },[discussion.id]);
+
+  async function sendReply(){
+    if(!reply.trim())return;setSending(true);
+    try{
+      await apiFetch(`/api/forum/discussion/${discussion.id}/post?sessionId=${sessionId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId,subject:'Re: '+discussion.subject,message:reply})});
+      setSuccess('התגובה פורסמה!');setReply('');
+    }catch(e){setErr(e.message);}finally{setSending(false);}
+  }
+
+  if(loading)return<Loading text="טוען דיון..."/>;
+  if(err)return<div className="eb">⚠️ {err}</div>;
+  return(
+    <div className="fade">
+      {(data?.posts||[]).map((p,i)=>(
+        <div key={i} className="post-card">
+          <div className="post-author">{p.author}</div>
+          {p.subject&&p.subject!==data.title&&<div className="post-subject">{p.subject}</div>}
+          <div className="post-content">{p.content}</div>
+          {p.time&&<div className="post-time">{p.time}</div>}
+        </div>
+      ))}
+      {(!data?.posts||data.posts.length===0)&&<div className="em"><div className="em-i">💬</div><div className="em-t">אין הודעות בדיון</div></div>}
+      <div className="reply-box">
+        <div className="reply-title">✏️ הוסף תגובה</div>
+        <textarea className="reply-ta" placeholder="כתוב את תגובתך כאן..." value={reply} onChange={e=>setReply(e.target.value)}/>
+        <button className="btn-sm" style={{marginTop:10}} onClick={sendReply} disabled={sending||!reply.trim()}>{sending?<><Spin/>שולח...</>:'📤 פרסם תגובה'}</button>
+        {success&&<div className="success-box">✅ {success}</div>}
+      </div>
+    </div>
+  );
+}
+
+// ── Courses Tab ───────────────────────────────────────────────────────────────
+function Courses({data,onCourseClick}){
+  const{courses=[]}=data;
+  if(!courses.length)return<div className="em fade"><div className="em-i">📚</div><div className="em-t">אין קורסים</div></div>;
+  return(
+    <div className="cg fade">
+      {courses.map(c=>(
+        <div key={c.id} className="cc" onClick={()=>onCourseClick(c)}>
+          <div className="cc-top">
+            <div className="cc-ab" style={{background:cc(c.fullname)}}>{ab(c.fullname)}</div>
+            <div style={{flex:1}}><div className="cc-nm">{c.fullname}</div><div className="cc-ct">{c.shortname}</div></div>
+            {c.grade!=null&&<div style={{fontSize:20,fontFamily:'Syne',fontWeight:800,color:gcol(c.grade)}}>{c.grade}</div>}
+          </div>
+          <div className="pb"><div className="pf" style={{width:c.progress+'%'}}/></div>
+          <div className="cc-bot">
+            <span className="cc-pl">{c.progress}% הושלם</span>
+            <span className={`gp g${gc(c.grade)}`} style={{cursor:'pointer'}}>פתח קורס →</span>
+          </div>
+          {c.gradeItems&&c.gradeItems.length>0&&(
+            <div className="gi">
+              {c.gradeItems.slice(0,3).map((it,i)=>(
+                <div key={i} className="gi-r">
+                  <span className="gi-n">{it.name}</span>
+                  <span className="gi-g" style={{color:gcol(it.grade)}}>{it.grade}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Grades Tab ────────────────────────────────────────────────────────────────
+function Grades({data}){
+  const{grades=[]}=data;
+  if(!grades.length)return<div className="em fade"><div className="em-i">📊</div><div className="em-t">אין ציונים</div></div>;
+  return(
+    <div className="fade">
+      {grades.map((g,i)=>(
+        <div key={i} className="grade-card">
+          <div className="gc-top">
+            <div><div className="gc-nm">{g.coursename}</div>{g.items?.length>0&&<div style={{fontSize:11,color:'var(--t3)',marginTop:3}}>{g.items.length} פריטי ציון</div>}</div>
+            <div className={`gc-g ${gc(g.grade)}`}>{g.grade!=null?g.grade+'%':'—'}</div>
+          </div>
+          {g.items&&g.items.length>0&&(
+            <div className="gsi">
+              {g.items.map((it,j)=>(
+                <div key={j} className="gsi-item">
+                  <div className="gsi-nm">{it.name}</div>
+                  <div className="gsi-v" style={{color:gcol(it.grade)}}>{it.grade}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Assignments Tab ───────────────────────────────────────────────────────────
+function AssignmentsTab({data,onAssignClick}){
+  const{assignments=[]}=data;
+  const ov=assignments.filter(a=>a.overdue&&!a.completed).sort((a,b)=>a.duedate-b.duedate);
+  const op=assignments.filter(a=>!a.completed&&!a.overdue).sort((a,b)=>a.duedate-b.duedate);
+  const done=assignments.filter(a=>a.completed);
+  if(!assignments.length)return<div className="em fade"><div className="em-i">📝</div><div className="em-t">אין משימות</div></div>;
+  const Sec=({list,title,cls})=>list.length>0&&(<>
+    <div className="sec-lbl">{title} ({list.length})</div>
+    {list.map(a=>{const{cls:tc,label}=dtag(a);const dc=a.completed?'done':a.overdue?'ov':'open';return(
+      <div key={a.id} className={`acard ${cls||''}`} onClick={()=>a.cmid&&onAssignClick(a)}>
+        <div className={`a-dot ${dc}`}/>
+        <div className="a-info"><div className="a-nm">{a.name}</div><div className="a-co">{a.coursename}</div><div className="a-dt">{fmtD(a.duedate)}</div></div>
+        <span className={`dt ${tc}`}>{label}</span>
+        {a.cmid&&<div className="act-arrow">›</div>}
+      </div>
+    );})}
+  </>);
+  return<div className="fade"><Sec list={ov} title="🔴 באיחור" cls="ov"/><Sec list={op} title="📌 פתוחות"/><Sec list={done} title="✅ הושלמו" cls="done"/></div>;
+}
+
+// ── Messages Tab ──────────────────────────────────────────────────────────────
+function Messages({data}){
+  const{messages=[]}=data;
+  if(!messages.length)return<div className="em fade"><div className="em-i">💬</div><div className="em-t">אין הודעות</div></div>;
+  return(
+    <div className="fade">
+      {messages.map(m=>(
+        <div key={m.id} className={`mc ${m.read?'':'unread'}`}>
+          <div className={`md ${m.read?'read':'unread'}`}/>
+          <div className="mb"><div className="ms">{m.subject}</div><div className="mf">מאת: {m.sender}</div>{m.text&&<div className="mt-txt">{m.text.slice(0,200)}</div>}</div>
+          <div className="mtime">{ago(m.timecreated)}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
 function Dashboard({sessionId,fullname,onLogout}){
   const[tab,setTab]=useState('overview');
-  const[data,setData]=useState(null);
-  const[loading,setLoading]=useState(true);
-  const[err,setErr]=useState('');
+  const[data,setData]=useState(null);const[loading,setLoading]=useState(true);const[err,setErr]=useState('');
   const[refreshing,setRefreshing]=useState(false);
 
+  // Navigation stack for drill-down
+  const[navStack,setNavStack]=useState([]);// [{type:'course'|'activity'|'discussion', data}]
+  const curNav=navStack[navStack.length-1];
+
   const load=useCallback(async(refresh=false)=>{
-    if(refresh)setRefreshing(true); else setLoading(true);
-    setErr('');
-    try{
-      const r=await fetch(`${API}/api/data?sessionId=${sessionId}${refresh?'&refresh=1':''}`);
-      const d=await r.json();
-      if(!r.ok){if(d.error==='SESSION_EXPIRED'){onLogout();return}throw new Error(d.error||'שגיאה')}
-      setData(d);
-    }catch(e){setErr(e.message)}
-    finally{setLoading(false);setRefreshing(false)}
+    if(refresh)setRefreshing(true);else setLoading(true);setErr('');
+    try{const d=await apiFetch(`/api/data?sessionId=${sessionId}${refresh?'&refresh=1':''}`);setData(d);}
+    catch(e){if(e.message==='SESSION_EXPIRED'){onLogout();return}setErr(e.message);}
+    finally{setLoading(false);setRefreshing(false);}
   },[sessionId]);
 
-  useEffect(()=>{load()},[load]);
+  useEffect(()=>{load();},[load]);
+
+  function navigate(type,d){setNavStack(s=>[...s,{type,data:d}]);}
+  function goBack(){setNavStack(s=>s.slice(0,-1));}
 
   const TABS=[
     {id:'overview',icon:'🏠',label:'סקירה'},
     {id:'courses',icon:'📚',label:'קורסים'},
     {id:'grades',icon:'🏆',label:'ציונים'},
-    {id:'assignments',icon:'📝',label:'משימות',badge:data?.stats?.openAssignments},
+    {id:'assignments',icon:'📝',label:'משימות',badge:data?.stats?.openAssignments,badgeRed:data?.stats?.overdueAssignments>0},
     {id:'messages',icon:'💬',label:'הודעות',badge:data?.stats?.unreadMessages},
   ];
 
-  const TITLES={overview:'סקירה כללית',courses:'הקורסים שלי',grades:'ציונים ומבחנים',assignments:'משימות',messages:'הודעות ועדכונים'};
+  const TITLES={
+    overview:`שלום, ${fullname}! 👋`,
+    courses:'הקורסים שלי',grades:'ציונים ומבחנים',
+    assignments:'משימות',messages:'הודעות',
+  };
+  const SUBS={
+    overview:'סקירה כללית של הפעילות שלך',
+    courses:'לחץ על קורס לצפייה בתוכן',
+    grades:'ציונים מפורטים לפי קורס ופריט',
+    assignments:'לחץ על משימה לצפייה ולהגשה',
+    messages:'הודעות ועדכונים ממרצים',
+  };
 
   async function logout(){
     try{await fetch(`${API}/api/logout`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId})})}catch{}
@@ -543,59 +702,68 @@ function Dashboard({sessionId,fullname,onLogout}){
 
   const initials=fullname?fullname.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase():'?';
 
+  // Determine page title
+  let pageTitle=TITLES[tab], pageSub=SUBS[tab];
+  if(curNav){
+    if(curNav.type==='course'){pageTitle=curNav.data.fullname;pageSub='תוכן הקורס — לחץ על פעילות לפתיחה';}
+    else if(curNav.type==='activity'){pageTitle=curNav.data.name||'פעילות';pageSub=curNav.data.type;}
+    else if(curNav.type==='discussion'){pageTitle=curNav.data.subject;pageSub='דיון בפורום';}
+  }
+
   return(
     <div className="app">
-      <aside className="sidebar">
-        <div className="sb-top">
-          <div className="sb-logo">
-            <div className="sb-logo-icon">KC</div>
-            <div className="sb-logo-text">KodCode</div>
-          </div>
-        </div>
-        <div className="sb-user">
-          <div className="sb-avatar">{initials}</div>
-          <div><div className="sb-user-name">{fullname}</div><div className="sb-user-role">תלמיד</div></div>
-        </div>
+      <aside className="sb">
+        <div className="sb-top"><div className="sb-logo"><div className="sb-li">KC</div><div className="sb-lt">KodCode Portal</div></div></div>
+        <div className="sb-user"><div className="sb-av">{initials}</div><div><div className="sb-un">{fullname}</div><div className="sb-ur">תלמיד</div></div></div>
         <nav className="sb-nav">
+          <div className="sb-section">תפריט ראשי</div>
           {TABS.map(t=>(
-            <div key={t.id} className={`nav-item${tab===t.id?' active':''}`} onClick={()=>setTab(t.id)}>
-              <span className="nav-icon">{t.icon}</span>
+            <div key={t.id} className={`ni${tab===t.id&&!curNav?' active':''}`} onClick={()=>{setTab(t.id);setNavStack([]);}}>
+              <span className="ni-icon">{t.icon}</span>
               <span>{t.label}</span>
-              {t.badge>0&&<span className="nav-badge">{t.badge}</span>}
+              {t.badge>0&&<span className={`nb${t.badgeRed?' nb-red':''}`}>{t.badge}</span>}
             </div>
           ))}
+          {data?.courses?.length>0&&<><div className="sb-section">קורסים</div>
+          {data.courses.map(c=>(
+            <div key={c.id} className={`ni${curNav?.type==='course'&&curNav.data.id===c.id?' active':''}`}
+              onClick={()=>{setTab('courses');setNavStack([{type:'course',data:c}]);}}>
+              <span className="ni-icon" style={{fontSize:13,width:20,height:20,background:cc(c.fullname),borderRadius:5,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:700}}>{ab(c.fullname)[0]}</span>
+              <span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.shortname||c.fullname}</span>
+            </div>
+          ))}</>}
         </nav>
-        <div className="sb-footer">
-          <button className="btn-logout" onClick={logout}>🚪 התנתק</button>
-        </div>
+        <div className="sb-foot"><button className="btn-lo" onClick={logout}>🚪 התנתק</button></div>
       </aside>
 
       <main className="main">
-        <div className="page-header">
-          <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
-            <div>
-              <div className="page-title">{TITLES[tab]}</div>
-              <div className="page-sub">
-                {tab==='overview'&&`שלום ${fullname} 👋 — ברוך הבא לפורטל שלך`}
-                {tab==='courses'&&'כל הקורסים הפעילים שלך עם ציונים ופרוגרס'}
-                {tab==='grades'&&'ציונים מלאים לפי קורס, כולל פירוט פריטים'}
-                {tab==='assignments'&&'כל המשימות — פתוחות, באיחור ומושלמות'}
-                {tab==='messages'&&'הודעות ועדכונים מהמסטרים שלך'}
-              </div>
-            </div>
-            {data&&<button className="btn-refresh" onClick={()=>load(true)} disabled={refreshing}>{refreshing?'מרענן...':'🔄 רענן'}</button>}
+        <div className="ph">
+          <div>
+            <div className="pt">{pageTitle}</div>
+            <div className="ps">{pageSub}</div>
+          </div>
+          <div style={{display:'flex',gap:8,alignItems:'center'}}>
+            {curNav&&<button className="btn-back" onClick={goBack}>← חזור</button>}
+            {!curNav&&data&&<button className="btn-sm" onClick={()=>load(true)} disabled={refreshing}>{refreshing?'...':'🔄 רענן'}</button>}
           </div>
         </div>
 
-        {loading&&<div className="loading"><div className="spinner-lg"/><div className="loading-text">שולף נתונים מ-Moodle...</div></div>}
-        {!loading&&err&&<div className="err-box" style={{maxWidth:400}}>⚠️ {err}<br/><button style={{marginTop:10,cursor:'pointer',background:'none',border:'1px solid currentColor',borderRadius:6,padding:'4px 12px',color:'inherit',fontFamily:'inherit',fontSize:12}} onClick={()=>load()}>נסה שוב</button></div>}
+        {loading&&<Loading text="שולף נתונים מ-Moodle..."/>}
+        {!loading&&err&&<div className="eb">⚠️ {err} <button style={{marginTop:8,display:'block',cursor:'pointer',background:'none',border:'1px solid currentColor',borderRadius:6,padding:'3px 10px',color:'inherit',fontFamily:'inherit',fontSize:11}} onClick={()=>load()}>נסה שוב</button></div>}
+
         {!loading&&!err&&data&&(
           <>
-            {tab==='overview'&&<Overview data={data} fullname={fullname}/>}
-            {tab==='courses'&&<Courses data={data}/>}
-            {tab==='grades'&&<Grades data={data}/>}
-            {tab==='assignments'&&<Assignments data={data}/>}
-            {tab==='messages'&&<Messages data={data}/>}
+            {/* Navigation drill-down */}
+            {curNav?.type==='discussion'&&<DiscussionViewer discussion={curNav.data} sessionId={sessionId} onBack={goBack}/>}
+            {curNav?.type==='activity'&&<ActivityViewer activity={curNav.data} sessionId={sessionId} onBack={goBack} onDiscussion={d=>navigate('discussion',d)}/>}
+            {curNav?.type==='course'&&<CourseContent course={curNav.data} sessionId={sessionId} onActivity={act=>navigate('activity',act)} onBack={goBack}/>}
+
+            {/* Regular tabs (shown only when no nav) */}
+            {!curNav&&tab==='overview'&&<Overview data={data} fullname={fullname} onCourseClick={c=>{setTab('courses');navigate('course',c);}} onAssignClick={a=>a.cmid&&navigate('activity',{...a,type:'assign'})}/>}
+            {!curNav&&tab==='courses'&&<Courses data={data} onCourseClick={c=>navigate('course',c)}/>}
+            {!curNav&&tab==='grades'&&<Grades data={data}/>}
+            {!curNav&&tab==='assignments'&&<AssignmentsTab data={data} onAssignClick={a=>navigate('activity',{...a,type:'assign'})}/>}
+            {!curNav&&tab==='messages'&&<Messages data={data}/>}
           </>
         )}
       </main>
@@ -603,14 +771,14 @@ function Dashboard({sessionId,fullname,onLogout}){
   );
 }
 
-// ── App ───────────────────────────────────────────────────────────────────
+// ── App ───────────────────────────────────────────────────────────────────────
 function App(){
   const[sid,setSid]=useState(()=>localStorage.getItem('sessionId'));
   const[name,setName]=useState(()=>localStorage.getItem('fullname')||'');
-  function onLogin(id,n){setSid(id);setName(n)}
-  function onLogout(){localStorage.removeItem('sessionId');localStorage.removeItem('fullname');setSid(null);setName('')}
-  if(!sid)return <LoginPage onLogin={onLogin}/>;
-  return <Dashboard sessionId={sid} fullname={name} onLogout={onLogout}/>;
+  function onLogin(id,n){setSid(id);setName(n);}
+  function onLogout(){localStorage.removeItem('sessionId');localStorage.removeItem('fullname');setSid(null);setName('');}
+  if(!sid)return<LoginPage onLogin={onLogin}/>;
+  return<Dashboard sessionId={sid} fullname={name} onLogout={onLogout}/>;
 }
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
