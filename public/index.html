@@ -5,238 +5,329 @@
 <title>KodCode Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Noto+Sans+Hebrew:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Hebrew:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#070b14;--bg2:#0c1221;--bg3:#111827;
-  --card:rgba(255,255,255,0.04);--cb:rgba(255,255,255,0.08);--ch:rgba(255,255,255,0.07);
-  --accent:#38bdf8;--a2:#818cf8;--a3:#34d399;--a4:#f472b6;--a5:#fb923c;
-  --text:#f1f5f9;--t2:#94a3b8;--t3:#475569;
-  --danger:#f87171;--warn:#fbbf24;--ok:#34d399;
-  --sw:250px;
+  --bg:#09090b;
+  --bg1:#111113;
+  --bg2:#18181b;
+  --bg3:#1f1f23;
+  --border:#2a2a2f;
+  --border2:#333338;
+  --sid:linear-gradient(160deg,#1a1040 0%,#0f0a2e 40%,#0a0820 100%);
+  --sid-hover:rgba(255,255,255,0.06);
+  --sid-active:rgba(139,92,246,0.18);
+  --acc:#8b5cf6;
+  --acc2:#7c3aed;
+  --acc-glow:rgba(139,92,246,0.25);
+  --blue:#3b82f6;
+  --cyan:#06b6d4;
+  --green:#10b981;
+  --yellow:#f59e0b;
+  --red:#ef4444;
+  --pink:#ec4899;
+  --text:#fafafa;
+  --t2:#a1a1aa;
+  --t3:#52525b;
+  --t4:#3f3f46;
+  --sw:260px;
+  --bnav:60px;
+  --radius:14px;
+  --card-shadow:0 1px 3px rgba(0,0,0,0.4),0 4px 12px rgba(0,0,0,0.25);
 }
-html,body{height:100%;font-family:'Noto Sans Hebrew',sans-serif;background:var(--bg);color:var(--text)}
+html,body{height:100%;font-family:'Noto Sans Hebrew','Inter',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
 #root{height:100%}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+a{color:inherit;text-decoration:none}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-@keyframes orbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.fade{animation:fadeUp .35s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes floatOrb{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(20px,-15px) scale(1.05)}66%{transform:translate(-10px,10px) scale(.97)}}
+.fade{animation:fadeUp .3s ease both}
 
-/* LOGIN */
-.lp{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden}
-.orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;animation:orbFloat 8s ease-in-out infinite}
-.o1{width:600px;height:600px;background:radial-gradient(circle,rgba(56,189,248,.22),transparent 70%);top:-200px;right:-200px}
-.o2{width:500px;height:500px;background:radial-gradient(circle,rgba(129,140,248,.18),transparent 70%);bottom:-150px;left:-150px;animation-delay:-3s}
-.o3{width:350px;height:350px;background:radial-gradient(circle,rgba(52,211,153,.12),transparent 70%);top:40%;left:30%;animation-delay:-5s}
-.lcard{position:relative;z-index:10;width:100%;max-width:420px;background:rgba(12,18,33,.88);border:1px solid rgba(56,189,248,.15);border-radius:22px;padding:44px 40px;backdrop-filter:blur(24px);box-shadow:0 0 80px rgba(56,189,248,.06),0 40px 80px rgba(0,0,0,.5)}
-.llogo{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:6px}
-.licon{width:50px;height:50px;background:linear-gradient(135deg,#38bdf8,#818cf8);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:19px;color:#fff;box-shadow:0 8px 24px rgba(56,189,248,.3)}
-.ltxt{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(135deg,#f1f5f9,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.lsub{text-align:center;color:var(--t3);font-size:13px;margin-bottom:30px;margin-top:5px}
-.fg{margin-bottom:16px}
-.fl{display:block;font-size:11px;font-weight:700;color:var(--t2);margin-bottom:7px;letter-spacing:.06em;text-transform:uppercase}
-.fi{width:100%;padding:13px 15px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:11px;color:var(--text);font-size:15px;font-family:'Noto Sans Hebrew',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;direction:ltr}
-.fi:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.14)}
-.fi::placeholder{color:var(--t3)}
-.btnp{width:100%;padding:14px;background:linear-gradient(135deg,#38bdf8,#818cf8);border:none;border-radius:11px;color:#fff;font-size:15px;font-weight:700;font-family:'Noto Sans Hebrew',sans-serif;cursor:pointer;margin-top:6px;transition:opacity .2s,transform .15s;box-shadow:0 8px 24px rgba(56,189,248,.22)}
-.btnp:hover:not(:disabled){opacity:.9;transform:translateY(-1px)}.btnp:disabled{opacity:.5;cursor:not-allowed}
-.eb{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:9px;padding:11px 15px;font-size:13px;color:var(--danger);margin-top:12px;text-align:center}
-.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:7px}
+/* ─── LOGIN ─────────────────────────────────────────────────────────────── */
+.lp{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#060611;position:relative;overflow:hidden}
+.l-orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;animation:floatOrb 12s ease-in-out infinite}
+.l-orb1{width:500px;height:500px;background:radial-gradient(circle,rgba(139,92,246,.3) 0%,transparent 70%);top:-150px;right:-100px}
+.l-orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(59,130,246,.2) 0%,transparent 70%);bottom:-100px;left:-50px;animation-delay:-5s}
+.l-orb3{width:300px;height:300px;background:radial-gradient(circle,rgba(236,72,153,.15) 0%,transparent 70%);top:50%;left:40%;animation-delay:-9s}
+.lcard{position:relative;z-index:10;width:100%;max-width:400px;padding:0 20px}
+.lcard-inner{background:rgba(15,12,35,0.85);border:1px solid rgba(139,92,246,0.2);border-radius:20px;padding:40px 36px;backdrop-filter:blur(32px);box-shadow:0 0 60px rgba(139,92,246,.08),0 32px 64px rgba(0,0,0,.6)}
+.l-brand{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:28px}
+.l-icon{width:44px;height:44px;background:linear-gradient(135deg,#8b5cf6,#3b82f6);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;font-family:'Inter',sans-serif;box-shadow:0 6px 20px rgba(139,92,246,.35)}
+.l-name{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.02em}
+.l-sub{text-align:center;font-size:12.5px;color:var(--t3);margin-bottom:28px;margin-top:-20px}
+.l-field{margin-bottom:14px}
+.l-label{display:block;font-size:11px;font-weight:600;color:var(--t2);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase}
+.l-input{width:100%;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:14.5px;font-family:'Noto Sans Hebrew','Inter',sans-serif;outline:none;transition:border-color .18s,box-shadow .18s;direction:ltr}
+.l-input:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-glow)}
+.l-input::placeholder{color:var(--t4)}
+.l-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--acc),var(--blue));border:none;border-radius:10px;color:#fff;font-size:14.5px;font-weight:600;font-family:'Noto Sans Hebrew','Inter',sans-serif;cursor:pointer;margin-top:4px;transition:opacity .18s,transform .12s;box-shadow:0 6px 20px rgba(139,92,246,.28)}
+.l-btn:hover:not(:disabled){opacity:.92;transform:translateY(-1px)}.l-btn:active{transform:scale(.99)}.l-btn:disabled{opacity:.5;cursor:not-allowed}
+.l-err{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px;font-size:12.5px;color:#fca5a5;margin-top:10px;text-align:center}
+.spin{width:13px;height:13px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .65s linear infinite;display:inline-block;vertical-align:middle;margin-left:6px}
 
-/* LAYOUT */
+/* ─── LAYOUT ─────────────────────────────────────────────────────────────── */
 .app{display:flex;min-height:100vh}
-.sb{width:var(--sw);background:var(--bg2);border-left:1px solid var(--cb);display:flex;flex-direction:column;position:fixed;top:0;right:0;bottom:0;z-index:100}
-.sb-top{padding:20px 18px 14px;border-bottom:1px solid var(--cb)}
-.sb-logo{display:flex;align-items:center;gap:9px}
-.sb-li{width:36px;height:36px;background:linear-gradient(135deg,#38bdf8,#818cf8);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#fff;flex-shrink:0}
-.sb-lt{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
-.sb-user{padding:12px 18px;border-bottom:1px solid var(--cb);display:flex;align-items:center;gap:10px}
-.sb-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#818cf8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
-.sb-un{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sb-ur{font-size:10px;color:var(--t3)}
-.sb-nav{flex:1;padding:10px 10px;overflow-y:auto}
-.sb-section{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;padding:10px 10px 5px;margin-top:5px}
-.ni{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;color:var(--t2);font-size:13px;font-weight:500;margin-bottom:2px;user-select:none;transition:background .15s,color .15s}
-.ni:hover{background:var(--ch);color:var(--text)}.ni.active{background:rgba(56,189,248,.12);color:var(--accent)}
-.ni-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center}
-.nb{margin-right:auto;background:var(--accent);color:var(--bg);font-size:10px;font-weight:700;padding:2px 6px;border-radius:999px}
-.nb-red{background:var(--danger);color:#fff}
-.sb-foot{padding:12px 10px;border-top:1px solid var(--cb)}
-.btn-lo{width:100%;padding:9px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:9px;color:var(--danger);font-size:12px;font-weight:600;font-family:'Noto Sans Hebrew',sans-serif;cursor:pointer;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:7px}
-.btn-lo:hover{background:rgba(248,113,113,.14)}
+
+/* SIDEBAR */
+.sb{width:var(--sw);background:var(--sid);border-left:1px solid rgba(139,92,246,.12);display:flex;flex-direction:column;position:fixed;top:0;right:0;bottom:0;z-index:200;transition:transform .25s cubic-bezier(.4,0,.2,1)}
+.sb-brand{padding:22px 18px 16px;display:flex;align-items:center;gap:11px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sb-icon{width:34px;height:34px;background:linear-gradient(135deg,#8b5cf6,#3b82f6);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;font-family:'Inter',sans-serif;flex-shrink:0;box-shadow:0 4px 12px rgba(139,92,246,.3)}
+.sb-title{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.01em}
+.sb-user{padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sb-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#3b82f6);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0}
+.sb-uname{font-size:12.5px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-urole{font-size:10.5px;color:rgba(255,255,255,.35)}
+.sb-scroll{flex:1;overflow-y:auto;padding:10px 10px}
+.sb-section{font-size:9.5px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:.1em;text-transform:uppercase;padding:12px 10px 5px}
+.ni{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:9px;cursor:pointer;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;margin-bottom:1px;user-select:none;transition:background .15s,color .15s;position:relative}
+.ni:hover{background:var(--sid-hover);color:rgba(255,255,255,.85)}
+.ni.active{background:var(--sid-active);color:#c4b5fd}
+.ni-icon{font-size:15px;flex-shrink:0;width:22px;text-align:center}
+.ni-badge{margin-right:auto;background:var(--acc);color:#fff;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:999px;min-width:18px;text-align:center}
+.ni-badge.red{background:var(--red)}
+.sb-foot{padding:12px 10px;border-top:1px solid rgba(255,255,255,.06)}
+.sb-logout{width:100%;padding:9px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.15);border-radius:9px;color:rgba(239,68,68,.8);font-size:12px;font-weight:600;font-family:'Noto Sans Hebrew','Inter',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s}
+.sb-logout:hover{background:rgba(239,68,68,.14);color:#fca5a5}
+
+/* MOBILE OVERLAY */
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:190;backdrop-filter:blur(4px)}
+.mob-overlay.open{display:block}
 
 /* MAIN */
-.main{flex:1;margin-right:var(--sw);padding:28px 32px;min-height:100vh;overflow-y:auto}
-.ph{margin-bottom:26px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.pt{font-family:'Syne',sans-serif;font-size:27px;font-weight:800;color:var(--text)}
-.ps{font-size:13px;color:var(--t3);margin-top:5px}
-.btn-back{background:rgba(255,255,255,.06);border:1px solid var(--cb);border-radius:9px;color:var(--t2);font-size:12px;font-weight:600;font-family:'Noto Sans Hebrew',sans-serif;padding:7px 14px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s}
-.btn-back:hover{background:var(--ch);color:var(--text)}
-.btn-sm{background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);border-radius:8px;color:var(--accent);font-size:12px;font-weight:600;font-family:'Noto Sans Hebrew',sans-serif;padding:6px 13px;cursor:pointer;transition:background .15s}
-.btn-sm:hover{background:rgba(56,189,248,.17)}.btn-sm:disabled{opacity:.5;cursor:not-allowed}
+.main{flex:1;margin-right:var(--sw);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+.topbar{display:none;align-items:center;gap:12px;padding:14px 18px;background:var(--bg1);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.topbar-burger{background:none;border:none;color:var(--t2);cursor:pointer;padding:6px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.topbar-burger:hover{background:var(--bg3)}
+.topbar-brand{display:flex;align-items:center;gap:8px;flex:1}
+.topbar-icon{width:28px;height:28px;background:linear-gradient(135deg,#8b5cf6,#3b82f6);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;font-family:'Inter',sans-serif}
+.topbar-name{font-size:14px;font-weight:700;color:var(--text)}
+.content{flex:1;padding:28px 32px}
+.content-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.ch-left{}
+.ch-title{font-size:24px;font-weight:700;color:var(--text);letter-spacing:-.025em;line-height:1.2}
+.ch-sub{font-size:13px;color:var(--t3);margin-top:4px}
+.ch-actions{display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:9px;font-size:13px;font-weight:600;font-family:'Noto Sans Hebrew','Inter',sans-serif;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-ghost{background:var(--bg3);border:1px solid var(--border);color:var(--t2)}
+.btn-ghost:hover{background:var(--border);color:var(--text)}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--blue));color:#fff;box-shadow:0 4px 14px var(--acc-glow)}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* MOBILE BOTTOM NAV */
+.bot-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(15,12,35,0.95);border-top:1px solid rgba(139,92,246,.15);z-index:200;height:var(--bnav);backdrop-filter:blur(20px)}
+.bot-nav-inner{display:flex;align-items:stretch;height:100%}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative;transition:color .15s;color:rgba(255,255,255,.4)}
+.bn-item.active{color:#c4b5fd}
+.bn-icon{font-size:18px;line-height:1}
+.bn-label{font-size:9.5px;font-weight:500}
+.bn-dot{position:absolute;top:8px;right:calc(50% - 12px);width:6px;height:6px;border-radius:50%;background:var(--red)}
 
 /* LOADING */
-.ld{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px;gap:14px;color:var(--t2)}
-.ld-sp{width:40px;height:40px;border:3px solid rgba(56,189,248,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
-.ld-tx{font-size:13px;animation:pulse 1.5s ease infinite}
+.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;gap:14px}
+.ld-ring{width:36px;height:36px;border:3px solid rgba(139,92,246,.15);border-top-color:var(--acc);border-radius:50%;animation:spin .75s linear infinite}
+.ld-text{font-size:13px;color:var(--t3);animation:pulse 1.8s ease infinite}
 
-/* STATS */
-.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px}
-.sc{background:var(--card);border:1px solid var(--cb);border-radius:16px;padding:20px 18px;transition:border-color .2s,transform .2s}
-.sc:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.13)}
-.sc-icon{font-size:24px;margin-bottom:10px}
-.sc-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1;margin-bottom:4px}
-.sc-lbl{font-size:11px;color:var(--t3);font-weight:500}
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--card-shadow)}
+.card-pad{padding:20px}
+.card-title{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-count{font-size:10.5px;background:var(--bg3);color:var(--t3);padding:1px 7px;border-radius:999px;font-weight:600}
 
-/* SECTION CARD */
-.card{background:var(--card);border:1px solid var(--cb);border-radius:16px;padding:22px}
-.card-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.cnt{font-size:10px;background:rgba(255,255,255,.07);color:var(--t3);padding:2px 7px;border-radius:999px;font-weight:600}
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px;box-shadow:var(--card-shadow);transition:border-color .2s,transform .2s}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.stat-icon{font-size:20px;margin-bottom:10px}
+.stat-val{font-size:28px;font-weight:800;line-height:1;margin-bottom:3px;font-family:'Inter',sans-serif;letter-spacing:-.02em}
+.stat-lbl{font-size:11px;color:var(--t3);font-weight:500}
 
-/* TWO COL */
-.tc{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-@media(max-width:860px){.tc{grid-template-columns:1fr}}
+/* TWO-COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 
-/* COURSE ROW */
-.cr{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:opacity .15s}
-.cr:hover{opacity:.85}.cr:last-child{border-bottom:none;padding-bottom:0}
-.ca{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
-.ci{flex:1;min-width:0}
-.cn{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.csub{font-size:11px;color:var(--t3);margin-top:2px}
-.pb{height:4px;background:rgba(255,255,255,.07);border-radius:2px;margin-top:6px}
-.pf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--a2));transition:width .8s}
+/* COURSE ROW in overview */
+.course-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .15s}
+.course-row:hover{opacity:.75}.course-row:last-child{border-bottom:none;padding-bottom:0}
+.c-avatar{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;font-family:'Inter',sans-serif}
+.c-info{flex:1;min-width:0}
+.c-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-short{font-size:11px;color:var(--t3);margin-top:1px}
+.c-bar{height:3px;background:var(--bg3);border-radius:2px;margin-top:6px}
+.c-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--acc),var(--blue));transition:width .6s}
+.grade-chip{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;flex-shrink:0}
+.chip-h{background:rgba(16,185,129,.12);color:#34d399}
+.chip-m{background:rgba(245,158,11,.12);color:#fbbf24}
+.chip-l{background:rgba(239,68,68,.12);color:#f87171}
+.chip-n{background:var(--bg3);color:var(--t3)}
 
-/* GRADE PILL */
-.gp{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;flex-shrink:0}
-.gh{background:rgba(52,211,153,.15);color:var(--ok)}.gm{background:rgba(251,191,36,.15);color:var(--warn)}.gl{background:rgba(248,113,113,.15);color:var(--danger)}.gn{background:rgba(255,255,255,.07);color:var(--t3)}
+/* ASSIGN ROW in overview */
+.assign-row{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.assign-row:last-child{border-bottom:none}.assign-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.assign-info{flex:1;min-width:0}.assign-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.assign-course{font-size:11px;color:var(--t3);margin-top:1px}
+.dt-chip{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;flex-shrink:0}
+.dt-ov{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.dt-warn{background:rgba(245,158,11,.12);color:#fbbf24}
+.dt-ok{background:rgba(16,185,129,.1);color:#34d399}
+.dt-done{background:var(--bg3);color:var(--t3)}
 
-/* ASSIGN ROW */
-.ar{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.ar:last-child{border-bottom:none}.ad{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.ai{flex:1;min-width:0}.an{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ac{font-size:11px;color:var(--t3);margin-top:2px}
-.dt{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;flex-shrink:0}
-.dd{background:rgba(248,113,113,.15);color:var(--danger);border:1px solid rgba(248,113,113,.25)}
-.dw{background:rgba(251,191,36,.15);color:var(--warn)}.dok{background:rgba(52,211,153,.12);color:var(--ok)}
-.dov{background:rgba(248,113,113,.2);color:var(--danger);border:1px solid rgba(248,113,113,.35)}
-.done{background:rgba(255,255,255,.06);color:var(--t3)}
-
-/* COURSE GRID */
-.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
-.cc{background:var(--card);border:1px solid var(--cb);border-radius:16px;padding:22px;cursor:pointer;transition:border-color .2s,transform .2s,background .2s}
-.cc:hover{border-color:rgba(255,255,255,.14);transform:translateY(-2px);background:var(--ch)}
-.cc-top{display:flex;align-items:flex-start;gap:13px;margin-bottom:16px}
-.cc-ab{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:#fff;flex-shrink:0}
-.cc-nm{font-size:14px;font-weight:700;color:var(--text);line-height:1.35}
-.cc-ct{font-size:11px;color:var(--t3);margin-top:3px}
-.cc-bot{display:flex;align-items:center;justify-content:space-between;margin-top:13px}
-.cc-pl{font-size:11px;color:var(--t3)}
-.gi{margin-top:11px;border-top:1px solid rgba(255,255,255,.05);padding-top:11px}
-.gi-r{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:12px;color:var(--t2)}
-.gi-n{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:10px}
-.gi-g{font-weight:700;font-family:'Syne',sans-serif;font-size:13px}
+/* COURSES GRID */
+.courses-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.course-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:border-color .2s,transform .18s,box-shadow .2s;box-shadow:var(--card-shadow)}
+.course-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.cc-top{display:flex;align-items:flex-start;gap:13px;margin-bottom:14px}
+.cc-avatar{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0;font-family:'Inter',sans-serif}
+.cc-info{flex:1;min-width:0}
+.cc-name{font-size:14px;font-weight:700;color:var(--text);line-height:1.35}
+.cc-short{font-size:11px;color:var(--t3);margin-top:3px}
+.cc-grade-big{font-size:22px;font-weight:800;font-family:'Inter',sans-serif;letter-spacing:-.02em}
+.cc-bar{height:4px;background:var(--bg3);border-radius:2px;margin-bottom:12px}
+.cc-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--acc),var(--blue))}
+.cc-footer{display:flex;align-items:center;justify-content:space-between}
+.cc-pct{font-size:11.5px;color:var(--t3)}
+.cc-link{font-size:12px;font-weight:600;color:var(--acc);display:flex;align-items:center;gap:4px}
+.cc-items{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.cc-item-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px;color:var(--t2)}
+.cc-item-g{font-weight:700;font-family:'Inter',sans-serif}
 
 /* GRADES PAGE */
-.grade-card{background:var(--card);border:1px solid var(--cb);border-radius:13px;padding:18px 20px;margin-bottom:10px;transition:background .15s}
-.grade-card:hover{background:var(--ch)}
-.gc-top{display:flex;align-items:center;justify-content:space-between}
-.gc-nm{font-size:14px;font-weight:600}
-.gc-g{font-family:'Syne',sans-serif;font-size:24px;font-weight:800}
-.gc-g.h{color:var(--ok)}.gc-g.m{color:var(--warn)}.gc-g.l{color:var(--danger)}.gc-g.n{color:var(--t3);font-size:15px}
-.gsi{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
-.gsi-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:7px;padding:9px 11px}
-.gsi-nm{font-size:10px;color:var(--t3);margin-bottom:3px}.gsi-v{font-size:14px;font-weight:700;font-family:'Syne',sans-serif}
+.grade-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:10px;box-shadow:var(--card-shadow);transition:border-color .15s}
+.grade-block:hover{border-color:var(--border2)}
+.gb-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.gb-name{font-size:14px;font-weight:600;color:var(--text)}
+.gb-score{font-size:26px;font-weight:800;font-family:'Inter',sans-serif;letter-spacing:-.02em}
+.gb-items{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.gb-item{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:10px 12px}
+.gb-item-name{font-size:10.5px;color:var(--t3);margin-bottom:3px}
+.gb-item-val{font-size:14px;font-weight:700;font-family:'Inter',sans-serif}
 
-/* ASSIGN PAGE */
-.sec-lbl{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin:20px 0 10px;display:flex;align-items:center;gap:8px}
-.sec-lbl::before{content:'';display:block;height:1px;flex:1;background:rgba(255,255,255,.06)}
-.acard{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--cb);border-radius:13px;padding:14px 18px;margin-bottom:8px;transition:background .15s;cursor:pointer}
-.acard:hover{background:var(--ch)}.acard.ov{border-color:rgba(248,113,113,.2)}.acard.done{opacity:.5}
-.a-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.a-dot.open{background:var(--accent);box-shadow:0 0 7px rgba(56,189,248,.5)}.a-dot.ov{background:var(--danger)}.a-dot.done{background:var(--t3)}
-.a-info{flex:1;min-width:0}.a-nm{font-size:13px;font-weight:500;color:var(--text)}.done .a-nm{text-decoration:line-through;color:var(--t3)}
-.a-co{font-size:11px;color:var(--t3);margin-top:2px}.a-dt{font-size:10px;color:var(--t3);margin-top:2px}
+/* ASSIGNMENTS PAGE */
+.assign-section-label{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;margin:22px 0 10px;display:flex;align-items:center;gap:10px}
+.assign-section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.assign-card{display:flex;align-items:center;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;box-shadow:var(--card-shadow);transition:border-color .15s,background .15s}
+.assign-card:hover{border-color:var(--border2);background:var(--bg3)}
+.assign-card.overdue{border-color:rgba(239,68,68,.2)}
+.assign-card.done{opacity:.5}
+.a-dot2{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.a-dot2.open{background:var(--acc);box-shadow:0 0 6px rgba(139,92,246,.5)}
+.a-dot2.overdue{background:var(--red)}.a-dot2.done{background:var(--t3)}
+.a-body{flex:1;min-width:0}
+.a-name{font-size:13px;font-weight:500;color:var(--text)}.done .a-name{text-decoration:line-through;color:var(--t3)}
+.a-meta{font-size:11px;color:var(--t3);margin-top:2px}
+.a-date{font-size:10.5px;color:var(--t3);margin-top:2px}
+.a-arrow{color:var(--t3);font-size:14px}
 
 /* MESSAGES */
-.mc{display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--cb);border-radius:13px;padding:14px 18px;margin-bottom:8px;transition:background .15s}
-.mc:hover{background:var(--ch)}.mc.unread{border-color:rgba(56,189,248,.2);background:rgba(56,189,248,.04)}
-.md{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
-.md.unread{background:var(--accent);box-shadow:0 0 7px rgba(56,189,248,.6)}.md.read{background:var(--t3)}
-.mb{flex:1;min-width:0}.ms{font-size:13px;font-weight:600}.mf{font-size:11px;color:var(--t3);margin-top:2px}
-.mt-txt{font-size:12px;color:var(--t2);margin-top:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.mtime{font-size:11px;color:var(--t3);flex-shrink:0}
+.msg-card{display:flex;align-items:flex-start;gap:12px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;box-shadow:var(--card-shadow);transition:border-color .15s}
+.msg-card:hover{border-color:var(--border2)}
+.msg-card.unread{border-color:rgba(139,92,246,.2);background:rgba(139,92,246,.03)}
+.msg-indicator{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.msg-indicator.unread{background:var(--acc);box-shadow:0 0 8px rgba(139,92,246,.6)}.msg-indicator.read{background:var(--t4)}
+.msg-body{flex:1;min-width:0}
+.msg-subj{font-size:13px;font-weight:600;color:var(--text)}
+.msg-from{font-size:11px;color:var(--t3);margin-top:2px}
+.msg-text{font-size:12px;color:var(--t2);margin-top:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.msg-time{font-size:11px;color:var(--t3);flex-shrink:0}
 
-/* EMPTY */
-.em{text-align:center;padding:48px 20px;color:var(--t3)}
-.em-i{font-size:44px;margin-bottom:12px;opacity:.4}.em-t{font-size:14px}
+/* EMPTY STATE */
+.empty{text-align:center;padding:56px 20px;color:var(--t3)}
+.empty-icon{font-size:48px;margin-bottom:14px;opacity:.35}
+.empty-text{font-size:14px;font-weight:500}
 
 /* COURSE CONTENT PAGE */
-.course-header{background:linear-gradient(135deg,rgba(56,189,248,.1),rgba(129,140,248,.1));border:1px solid rgba(56,189,248,.2);border-radius:16px;padding:24px;margin-bottom:20px;display:flex;align-items:center;gap:18px}
-.ch-ab{width:60px;height:60px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:#fff}
-.ch-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800}
-.ch-meta{font-size:13px;color:var(--t2);margin-top:4px}
-.section-block{margin-bottom:16px}
-.section-name{font-size:12px;font-weight:700;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;padding:10px 14px;background:rgba(255,255,255,.02);border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.section-name::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.05)}
-.activity-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border:1px solid var(--cb);border-radius:12px;margin-bottom:6px;cursor:pointer;transition:background .15s,border-color .15s,transform .1s}
-.activity-item:hover{background:var(--ch);border-color:rgba(255,255,255,.14);transform:translateX(-2px)}
-.act-type-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.act-name{font-size:13px;font-weight:500;flex:1}
-.act-arrow{color:var(--t3);font-size:14px}
+.course-banner{background:linear-gradient(135deg,rgba(139,92,246,.1),rgba(59,130,246,.08));border:1px solid rgba(139,92,246,.18);border-radius:var(--radius);padding:22px;margin-bottom:20px;display:flex;align-items:center;gap:18px}
+.course-banner-av{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;flex-shrink:0;font-family:'Inter',sans-serif}
+.course-banner-title{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.02em}
+.course-banner-meta{font-size:12.5px;color:var(--t2);margin-top:4px}
+.sec-block{margin-bottom:14px}
+.sec-name{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;padding:8px 12px;background:var(--bg3);border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.sec-name::after{content:'';flex:1;height:1px;background:var(--border)}
+.act-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:11px;margin-bottom:6px;cursor:pointer;box-shadow:var(--card-shadow);transition:border-color .15s,background .15s,transform .1s}
+.act-row:hover{border-color:var(--border2);background:var(--bg3);transform:translateX(-2px)}
+.act-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.act-name{font-size:13px;font-weight:500;color:var(--text);flex:1}
+.act-type-tag{font-size:10px;background:var(--bg3);color:var(--t3);padding:2px 7px;border-radius:999px;font-weight:600}
+.act-chevron{color:var(--t3);font-size:14px}
 
 /* ACTIVITY VIEWER */
-.activity-viewer{background:var(--card);border:1px solid var(--cb);border-radius:16px;padding:24px}
-.av-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px}
-.av-description{font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:20px}
-
-/* FORUM */
-.discussion-item{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--card);border:1px solid var(--cb);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:background .15s}
-.discussion-item:hover{background:var(--ch)}
-.di-subject{font-size:13px;font-weight:600;flex:1}
-.di-meta{font-size:11px;color:var(--t3)}
-.post-card{background:rgba(255,255,255,.03);border:1px solid var(--cb);border-radius:12px;padding:16px;margin-bottom:10px}
-.post-author{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px}
-.post-subject{font-size:14px;font-weight:600;margin-bottom:8px}
-.post-content{font-size:13px;color:var(--t2);line-height:1.7}
-.post-time{font-size:11px;color:var(--t3);margin-top:8px}
-.reply-box{background:rgba(255,255,255,.03);border:1px solid var(--cb);border-radius:12px;padding:18px;margin-top:20px}
-.reply-title{font-size:14px;font-weight:600;margin-bottom:12px}
-.reply-ta{width:100%;padding:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:var(--text);font-family:'Noto Sans Hebrew',sans-serif;font-size:13px;min-height:100px;outline:none;resize:vertical;transition:border-color .2s}
-.reply-ta:focus{border-color:var(--accent)}
-
-/* ATTENDANCE */
-.att-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
-.att-stat{background:var(--card);border:1px solid var(--cb);border-radius:12px;padding:16px;text-align:center}
-.att-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800}
-.att-lbl{font-size:11px;color:var(--t3);margin-top:4px}
-.att-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--card);border:1px solid var(--cb);border-radius:10px;margin-bottom:6px}
-.att-status{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.att-date{font-size:13px;flex:1}
-.att-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
-.att-present{background:rgba(52,211,153,.15);color:var(--ok)}
-.att-absent{background:rgba(248,113,113,.15);color:var(--danger)}
-.att-unknown{background:rgba(255,255,255,.07);color:var(--t3)}
-
-/* FILE DOWNLOAD */
-.file-card{background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(129,140,248,.08));border:1px solid rgba(56,189,248,.2);border-radius:14px;padding:24px;text-align:center}
-.file-icon{font-size:52px;margin-bottom:14px}
+.av-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--card-shadow)}
+.av-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:14px;letter-spacing:-.02em}
+.av-desc{font-size:13.5px;color:var(--t2);line-height:1.75;margin-bottom:18px}
+.av-desc img{max-width:100%;border-radius:8px}
+.file-box{background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(59,130,246,.06));border:1px solid rgba(139,92,246,.18);border-radius:var(--radius);padding:28px;text-align:center}
+.file-emoji{font-size:52px;margin-bottom:14px}
 .file-name{font-size:16px;font-weight:600;margin-bottom:8px}
-.file-desc{font-size:13px;color:var(--t2);margin-bottom:20px}
-.btn-download{background:linear-gradient(135deg,#38bdf8,#818cf8);border:none;border-radius:11px;color:#fff;font-size:14px;font-weight:700;font-family:'Noto Sans Hebrew',sans-serif;padding:12px 28px;cursor:pointer;transition:opacity .2s,transform .15s;box-shadow:0 8px 20px rgba(56,189,248,.25)}
-.btn-download:hover{opacity:.9;transform:translateY(-1px)}
+.file-desc{font-size:13px;color:var(--t2);margin-bottom:22px}
+.disc-item{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:11px;margin-bottom:8px;cursor:pointer;transition:border-color .15s,background .15s}
+.disc-item:hover{border-color:var(--border2);background:var(--border)}
+.disc-subj{font-size:13px;font-weight:600;flex:1;color:var(--text)}
+.disc-meta{font-size:11px;color:var(--t3)}
+.post-item{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px}
+.post-author{font-size:12px;font-weight:700;color:#c4b5fd;margin-bottom:3px}
+.post-subj{font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px}
+.post-body{font-size:13px;color:var(--t2);line-height:1.7}
+.post-time{font-size:11px;color:var(--t3);margin-top:8px}
+.reply-box{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:18px;margin-top:20px}
+.reply-lbl{font-size:13.5px;font-weight:600;color:var(--text);margin-bottom:12px}
+.reply-ta{width:100%;padding:11px 13px;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;color:var(--text);font-family:'Noto Sans Hebrew','Inter',sans-serif;font-size:13px;min-height:100px;outline:none;resize:vertical;transition:border-color .18s}
+.reply-ta:focus{border-color:var(--acc)}
+.success-msg{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#34d399;text-align:center;margin-top:10px}
+.err-msg{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#fca5a5;margin-top:10px}
+.assign-status-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.status-cell{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.status-lbl{font-size:10.5px;color:var(--t3);margin-bottom:4px}
+.status-val{font-size:13px;font-weight:600;color:var(--text)}
+.att-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.att-cell{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:16px;text-align:center}
+.att-val{font-size:26px;font-weight:800;font-family:'Inter',sans-serif;letter-spacing:-.02em}
+.att-lbl{font-size:10.5px;color:var(--t3);margin-top:4px}
+.att-sess{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:6px}
+.att-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.att-date{font-size:13px;color:var(--text);flex:1}
+.att-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+.att-present{background:rgba(16,185,129,.12);color:#34d399}.att-absent{background:rgba(239,68,68,.12);color:#f87171}.att-unknown{background:var(--bg);color:var(--t3)}
 
-/* ASSIGN SUBMIT */
-.submit-box{background:rgba(255,255,255,.03);border:1px solid var(--cb);border-radius:12px;padding:18px;margin-top:18px}
-.submit-ta{width:100%;padding:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:var(--text);font-family:'Noto Sans Hebrew',sans-serif;font-size:13px;min-height:150px;outline:none;resize:vertical;transition:border-color .2s}
-.submit-ta:focus{border-color:var(--accent)}
-.success-box{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);border-radius:9px;padding:12px;font-size:13px;color:var(--ok);text-align:center;margin-top:10px}
+/* BREADCRUMB */
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t3);margin-bottom:20px;flex-wrap:wrap}
+.bc-item{cursor:pointer;transition:color .15s}.bc-item:hover{color:var(--text)}.bc-sep{color:var(--t4)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sb{transform:translateX(100%)}
+  .sb.open{transform:translateX(0)}
+  .main{margin-right:0;padding-bottom:var(--bnav)}
+  .content{padding:16px}
+  .topbar{display:flex}
+  .bot-nav{display:flex}
+  .two-col{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(3,1fr)}
+  .courses-grid{grid-template-columns:1fr}
+  .att-grid{grid-template-columns:repeat(3,1fr)}
+  .assign-status-grid{grid-template-columns:1fr 1fr}
+  .gb-items{grid-template-columns:1fr}
+  .ch-title{font-size:20px}
+  .content-header{margin-bottom:16px}
+  .course-banner{flex-direction:column;align-items:flex-start;gap:12px}
+}
+@media(min-width:769px){
+  .topbar,.bot-nav{display:none!important}
+}
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .att-grid{grid-template-columns:repeat(3,1fr)}
+}
 </style>
 </head>
 <body><div id="root"></div>
@@ -244,100 +335,112 @@ html,body{height:100%;font-family:'Noto Sans Hebrew',sans-serif;background:var(-
 const {useState,useEffect,useCallback,useRef}=React;
 const API=window.location.origin;
 
-// ── helpers ──────────────────────────────────────────────────────────────────
-const COLS=['#38bdf8','#818cf8','#34d399','#f472b6','#fb923c','#a78bfa','#22d3ee','#4ade80','#facc15','#f87171'];
-function cc(n=''){let h=0;for(let c of n)h=c.charCodeAt(0)+((h<<5)-h);return COLS[Math.abs(h)%COLS.length]}
-function ab(n=''){const w=n.trim().split(/\s+/);return w.length>=2?(w[0][0]+w[1][0]).toUpperCase():n.slice(0,2).toUpperCase()}
-function gc(g){if(typeof g!=='number')return'n';if(g>=85)return'h';if(g>=60)return'm';return'l'}
-function gcol(g){if(typeof g!=='number')return'var(--t3)';if(g>=85)return'var(--ok)';if(g>=60)return'var(--warn)';return'var(--danger)'}
-function fmtD(ts){return new Date(ts*1000).toLocaleDateString('he-IL',{day:'numeric',month:'short'})}
-function ago(ts){const d=Date.now()/1000-ts;if(d<60)return'עכשיו';if(d<3600)return`${Math.floor(d/60)} דק'`;if(d<86400)return`${Math.floor(d/3600)} ש'`;return`${Math.floor(d/86400)} ימים`}
-function dtag(a){
-  if(a.completed)return{cls:'done',label:'הושלם'};
-  if(a.overdue)return{cls:'dov',label:'באיחור'};
-  if(a.daysLeft<=0)return{cls:'dd',label:'היום'};
-  if(a.daysLeft<=2)return{cls:'dd',label:`${a.daysLeft} ימים`};
-  if(a.daysLeft<=7)return{cls:'dw',label:`${a.daysLeft} ימים`};
-  return{cls:'dok',label:`${a.daysLeft} ימים`};
+// ── utils ─────────────────────────────────────────────────────────────────────
+const PALETTE=['#8b5cf6','#3b82f6','#10b981','#ec4899','#f59e0b','#06b6d4','#6366f1','#14b8a6','#f97316','#a855f7'];
+function strColor(n=''){let h=0;for(let c of n)h=c.charCodeAt(0)+((h<<5)-h);return PALETTE[Math.abs(h)%PALETTE.length]}
+function initials(n=''){const w=n.trim().split(/\s+/);return w.length>=2?(w[0][0]+w[1][0]).toUpperCase():n.slice(0,2).toUpperCase()}
+function gradeClass(g){if(typeof g!=='number')return'n';if(g>=85)return'h';if(g>=60)return'm';return'l'}
+function gradeColor(g){if(typeof g!=='number')return'var(--t3)';if(g>=85)return'var(--green)';if(g>=60)return'var(--yellow)';return'var(--red)'}
+function fmtDate(ts){return new Date(ts*1000).toLocaleDateString('he-IL',{day:'numeric',month:'short'})}
+function timeAgo(ts){const d=Date.now()/1000-ts;if(d<60)return'עכשיו';if(d<3600)return`${Math.floor(d/60)} דק'`;if(d<86400)return`${Math.floor(d/3600)} ש'`;return`${Math.floor(d/86400)} ימים`}
+function dueTag(a){
+  if(a.completed)return{cls:'dt-done',label:'הושלם'};
+  if(a.overdue)return{cls:'dt-ov',label:'באיחור'};
+  if(a.daysLeft<=0)return{cls:'dt-ov',label:'היום'};
+  if(a.daysLeft<=2)return{cls:'dt-warn',label:`${a.daysLeft} ימים`};
+  if(a.daysLeft<=7)return{cls:'dt-warn',label:`${a.daysLeft} ימים`};
+  return{cls:'dt-ok',label:`${a.daysLeft} ימים`};
 }
-const TYPE_ICON={assign:'📝',forum:'💬',resource:'📄',quiz:'🧪',attendance:'✅',url:'🔗',folder:'📁',page:'📖',workshop:'🔧',choice:'🗳️',label:'🏷️',unknown:'📌'};
-const TYPE_COLOR={assign:'rgba(56,189,248,.15)',forum:'rgba(129,140,248,.15)',resource:'rgba(52,211,153,.15)',quiz:'rgba(251,191,36,.15)',attendance:'rgba(244,114,182,.15)',url:'rgba(251,146,60,.15)',default:'rgba(255,255,255,.07)'};
+const ACT_ICON={assign:'📝',forum:'💬',resource:'📄',quiz:'🧪',attendance:'✅',url:'🔗',folder:'📁',page:'📖',workshop:'🔧',choice:'🗳️',label:'🏷️',unknown:'📌'};
+const ACT_BG={assign:'rgba(139,92,246,.15)',forum:'rgba(99,102,241,.15)',resource:'rgba(16,185,129,.15)',quiz:'rgba(245,158,11,.15)',attendance:'rgba(236,72,153,.15)',url:'rgba(249,115,22,.15)',page:'rgba(6,182,212,.15)',default:'rgba(255,255,255,.06)'};
 
 async function apiFetch(path,opts={}){
   const r=await fetch(API+path,opts);
   const d=await r.json();
-  if(!r.ok) throw new Error(d.error||'שגיאת שרת');
+  if(!r.ok)throw new Error(d.error||'שגיאת שרת');
   return d;
 }
 
-// ── Spinner ───────────────────────────────────────────────────────────────────
-const Spin=()=><span className="spin"/>;
-const Loading=({text='טוען...'})=><div className="ld"><div className="ld-sp"/><div className="ld-tx">{text}</div></div>;
+const Spinner=()=><span className="spin"/>;
+const Loading=({text='טוען...'})=><div className="loading-wrap"><div className="ld-ring"/><div className="ld-text">{text}</div></div>;
 
 // ── Login ─────────────────────────────────────────────────────────────────────
 function LoginPage({onLogin}){
-  const[u,setU]=useState('');const[p,setP]=useState('');const[loading,setL]=useState(false);const[err,setErr]=useState('');
-  async function sub(e){
+  const[u,setU]=useState('');const[p,setP]=useState('');const[busy,setBusy]=useState(false);const[err,setErr]=useState('');
+  async function submit(e){
     e.preventDefault();if(!u||!p){setErr('נא למלא את כל השדות');return}
-    setL(true);setErr('');
+    setBusy(true);setErr('');
     try{
       const d=await apiFetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u.trim(),password:p})});
       localStorage.setItem('sessionId',d.sessionId);localStorage.setItem('fullname',d.fullname);
       onLogin(d.sessionId,d.fullname);
-    }catch(e){setErr(e.message)}finally{setL(false)}
+    }catch(e){setErr(e.message)}finally{setBusy(false)}
   }
   return(
     <div className="lp">
-      <div className="orb o1"/><div className="orb o2"/><div className="orb o3"/>
+      <div className="l-orb l-orb1"/><div className="l-orb l-orb2"/><div className="l-orb l-orb3"/>
       <div className="lcard fade">
-        <div className="llogo"><div className="licon">KC</div><div className="ltxt">KodCode Portal</div></div>
-        <div className="lsub">פורטל הסטודנטים | KodCode Academy</div>
-        <form onSubmit={sub}>
-          <div className="fg"><label className="fl">תעודת זהות</label><input className="fi" type="text" placeholder="מספר תעודת זהות" value={u} onChange={e=>setU(e.target.value)} disabled={loading}/></div>
-          <div className="fg"><label className="fl">סיסמה</label><input className="fi" type="password" placeholder="הסיסמה שלך" value={p} onChange={e=>setP(e.target.value)} disabled={loading}/></div>
-          <button className="btnp" type="submit" disabled={loading}>{loading&&<Spin/>}{loading?'מתחבר...':'כניסה'}</button>
-          {err&&<div className="eb">⚠️ {err}</div>}
-        </form>
+        <div className="lcard-inner">
+          <div className="l-brand">
+            <div className="l-icon">KC</div>
+            <span className="l-name">KodCode Portal</span>
+          </div>
+          <p className="l-sub">פורטל הסטודנטים של KodCode Academy</p>
+          <form onSubmit={submit}>
+            <div className="l-field"><label className="l-label">תעודת זהות</label><input className="l-input" type="text" placeholder="מספר תעודת זהות" value={u} onChange={e=>setU(e.target.value)} disabled={busy}/></div>
+            <div className="l-field"><label className="l-label">סיסמה</label><input className="l-input" type="password" placeholder="הסיסמה שלך" value={p} onChange={e=>setP(e.target.value)} disabled={busy}/></div>
+            <button className="l-btn" type="submit" disabled={busy}>{busy?<>מתחבר...<Spinner/></>:'כניסה לפורטל'}</button>
+            {err&&<div className="l-err">⚠️ {err}</div>}
+          </form>
+        </div>
       </div>
     </div>
   );
 }
 
 // ── Overview ──────────────────────────────────────────────────────────────────
-function Overview({data,fullname,onCourseClick,onAssignClick}){
+function Overview({data,onCourseClick,onAssignClick}){
   const{courses=[],grades=[],assignments=[],stats={}}=data;
   const gmap={};grades.forEach(g=>{gmap[g.courseid]=g.grade});
   const open=assignments.filter(a=>!a.completed&&!a.overdue).sort((a,b)=>a.duedate-b.duedate);
   return(
     <div className="fade">
-      <div className="sg">
-        <div className="sc"><div className="sc-icon">📚</div><div className="sc-val" style={{color:'var(--accent)'}}>{stats.totalCourses}</div><div className="sc-lbl">קורסים</div></div>
-        <div className="sc"><div className="sc-icon">🏆</div><div className="sc-val" style={{color:gcol(stats.avgGrade)}}>{stats.avgGrade!=null?stats.avgGrade+'%':'—'}</div><div className="sc-lbl">ממוצע</div></div>
-        <div className="sc"><div className="sc-icon">📝</div><div className="sc-val" style={{color:'var(--a2)'}}>{stats.openAssignments}</div><div className="sc-lbl">משימות פתוחות</div></div>
-        <div className="sc"><div className="sc-icon">🔴</div><div className="sc-val" style={{color:'var(--danger)'}}>{stats.overdueAssignments}</div><div className="sc-lbl">באיחור</div></div>
-        <div className="sc"><div className="sc-icon">✅</div><div className="sc-val" style={{color:'var(--ok)'}}>{stats.completedAssignments}</div><div className="sc-lbl">הושלמו</div></div>
-        <div className="sc"><div className="sc-icon">💬</div><div className="sc-val" style={{color:'var(--a4)'}}>{stats.unreadMessages}</div><div className="sc-lbl">הודעות חדשות</div></div>
+      <div className="stats-grid">
+        {[
+          {icon:'📚',val:stats.totalCourses,lbl:'קורסים',col:'var(--acc)'},
+          {icon:'🏆',val:stats.avgGrade!=null?stats.avgGrade+'%':'—',lbl:'ממוצע',col:gradeColor(stats.avgGrade)},
+          {icon:'📝',val:stats.openAssignments,lbl:'משימות פתוחות',col:'var(--blue)'},
+          {icon:'🔴',val:stats.overdueAssignments,lbl:'באיחור',col:'var(--red)'},
+          {icon:'✅',val:stats.completedAssignments,lbl:'הושלמו',col:'var(--green)'},
+          {icon:'💬',val:stats.unreadMessages,lbl:'הודעות חדשות',col:'var(--pink)'},
+        ].map((s,i)=>(
+          <div key={i} className="stat-card">
+            <div className="stat-icon">{s.icon}</div>
+            <div className="stat-val" style={{color:s.col}}>{s.val}</div>
+            <div className="stat-lbl">{s.lbl}</div>
+          </div>
+        ))}
       </div>
-      <div className="tc">
-        <div className="card">
-          <div className="card-title">📚 קורסים <span className="cnt">{courses.length}</span></div>
-          {courses.length===0?<div className="em"><div className="em-i">📭</div><div className="em-t">אין קורסים</div></div>
-          :courses.map(c=>{const g=gmap[c.id];return(
-            <div key={c.id} className="cr" onClick={()=>onCourseClick(c)}>
-              <div className="ca" style={{background:cc(c.fullname)}}>{ab(c.fullname)}</div>
-              <div className="ci"><div className="cn">{c.fullname}</div><div className="csub">{c.shortname}</div><div className="pb"><div className="pf" style={{width:c.progress+'%'}}/></div></div>
-              {g!=null?<span className={`gp g${gc(g)}`}>{g}</span>:<span className="gp gn">—</span>}
+      <div className="two-col">
+        <div className="card card-pad">
+          <div className="card-title">📚 קורסים <span className="card-count">{courses.length}</span></div>
+          {courses.length===0?<div className="empty"><div className="empty-icon">📭</div><div className="empty-text">אין קורסים</div></div>
+          :courses.map(c=>{const g=gmap[c.id];const gc=gradeClass(g);return(
+            <div key={c.id} className="course-row" onClick={()=>onCourseClick(c)}>
+              <div className="c-avatar" style={{background:strColor(c.fullname)}}>{initials(c.fullname)}</div>
+              <div className="c-info"><div className="c-name">{c.fullname}</div><div className="c-short">{c.shortname}</div><div className="c-bar"><div className="c-fill" style={{width:c.progress+'%'}}/></div></div>
+              {g!=null?<span className={`grade-chip chip-${gc}`}>{g}%</span>:<span className="grade-chip chip-n">—</span>}
             </div>
           );})}
         </div>
-        <div className="card">
-          <div className="card-title">⏰ משימות קרובות <span className="cnt">{open.length}</span></div>
-          {open.length===0?<div className="em"><div className="em-i">🎉</div><div className="em-t">אין משימות פתוחות!</div></div>
-          :open.slice(0,6).map(a=>{const{cls,label}=dtag(a);return(
-            <div key={a.id} className="ar" style={{cursor:'pointer'}} onClick={()=>onAssignClick(a)}>
-              <div className="ad" style={{background:'var(--accent)'}}/>
-              <div className="ai"><div className="an">{a.name}</div><div className="ac">{a.coursename}</div></div>
-              <span className={`dt ${cls}`}>{label}</span>
+        <div className="card card-pad">
+          <div className="card-title">⏰ משימות קרובות <span className="card-count">{open.length}</span></div>
+          {open.length===0?<div className="empty"><div className="empty-icon">🎉</div><div className="empty-text">אין משימות פתוחות</div></div>
+          :open.slice(0,6).map(a=>{const{cls,label}=dueTag(a);return(
+            <div key={a.id} className="assign-row" onClick={()=>onAssignClick(a)}>
+              <div className="assign-dot" style={{background:'var(--acc)'}}/>
+              <div className="assign-info"><div className="assign-name">{a.name}</div><div className="assign-course">{a.coursename}</div></div>
+              <span className={`dt-chip ${cls}`}>{label}</span>
             </div>
           );})}
         </div>
@@ -347,44 +450,34 @@ function Overview({data,fullname,onCourseClick,onAssignClick}){
 }
 
 // ── Course Content ────────────────────────────────────────────────────────────
-function CourseContent({course,sessionId,onActivity,onBack}){
+function CourseContent({course,sessionId,onActivity}){
   const[sections,setSections]=useState([]);const[loading,setLoading]=useState(true);const[err,setErr]=useState('');
   useEffect(()=>{
-    (async()=>{
-      setLoading(true);setErr('');
-      try{const d=await apiFetch(`/api/course/${course.id}/content?sessionId=${sessionId}`);setSections(d);}
-      catch(e){setErr(e.message);}
-      finally{setLoading(false);}
-    })();
+    (async()=>{setLoading(true);setErr('');try{const d=await apiFetch(`/api/course/${course.id}/content?sessionId=${sessionId}`);setSections(d);}catch(e){setErr(e.message);}finally{setLoading(false);}})();
   },[course.id]);
-
   if(loading)return<Loading text="טוען תוכן קורס..."/>;
-  if(err)return<div className="eb">⚠️ {err}</div>;
+  if(err)return<div className="err-msg">⚠️ {err}</div>;
   return(
     <div className="fade">
-      <div className="course-header">
-        <div className="ch-ab" style={{background:cc(course.fullname)}}>{ab(course.fullname)}</div>
+      <div className="course-banner">
+        <div className="course-banner-av" style={{background:strColor(course.fullname)}}>{initials(course.fullname)}</div>
         <div>
-          <div className="ch-title">{course.fullname}</div>
-          <div className="ch-meta">{course.shortname} · {course.progress}% הושלם {course.grade!=null&&`· ציון: ${course.grade}`}</div>
+          <div className="course-banner-title">{course.fullname}</div>
+          <div className="course-banner-meta">{course.shortname}{course.progress!=null&&` · ${course.progress}% הושלם`}{course.grade!=null&&` · ציון: ${course.grade}`}</div>
         </div>
       </div>
-      {sections.length===0&&<div className="em"><div className="em-i">📭</div><div className="em-t">אין תוכן זמין</div></div>}
+      {sections.length===0&&<div className="empty"><div className="empty-icon">📭</div><div className="empty-text">אין תוכן זמין</div></div>}
       {sections.map((sec,si)=>(
-        <div key={si} className="section-block">
-          {sec.name&&sec.name!=='כללי'&&<div className="section-name">{sec.name}</div>}
-          {sec.activities.map((act,ai)=>{
-            const icon=TYPE_ICON[act.type]||TYPE_ICON.unknown;
-            const bg=TYPE_COLOR[act.type]||TYPE_COLOR.default;
-            return(
-              <div key={ai} className="activity-item" onClick={()=>onActivity(act)}>
-                <div className="act-type-icon" style={{background:bg}}>{icon}</div>
-                <div className="act-name">{act.name}</div>
-                <div style={{fontSize:10,color:'var(--t3)',padding:'2px 7px',background:'rgba(255,255,255,.05)',borderRadius:999}}>{act.type}</div>
-                <div className="act-arrow">›</div>
-              </div>
-            );
-          })}
+        <div key={si} className="sec-block">
+          {sec.name&&sec.name!=='כללי'&&<div className="sec-name">{sec.name}</div>}
+          {sec.activities.map((act,ai)=>(
+            <div key={ai} className="act-row" onClick={()=>onActivity(act)}>
+              <div className="act-icon" style={{background:ACT_BG[act.type]||ACT_BG.default}}>{ACT_ICON[act.type]||'📌'}</div>
+              <div className="act-name">{act.name}</div>
+              <span className="act-type-tag">{act.type}</span>
+              <span className="act-chevron">›</span>
+            </div>
+          ))}
         </div>
       ))}
     </div>
@@ -392,104 +485,81 @@ function CourseContent({course,sessionId,onActivity,onBack}){
 }
 
 // ── Activity Viewer ───────────────────────────────────────────────────────────
-function ActivityViewer({activity,sessionId,onBack,onDiscussion}){
+function ActivityViewer({activity,sessionId,onDiscussion}){
   const[data,setData]=useState(null);const[loading,setLoading]=useState(true);const[err,setErr]=useState('');
-  const[replyText,setReplyText]=useState('');const[submitText,setSubmitText]=useState('');const[submitting,setSubmitting]=useState(false);const[success,setSuccess]=useState('');
-
+  const[submitText,setSubmitText]=useState('');const[submitting,setSubmitting]=useState(false);const[success,setSuccess]=useState('');
   useEffect(()=>{
-    (async()=>{
-      setLoading(true);setErr('');setSuccess('');
-      try{const d=await apiFetch(`/api/activity/${activity.type}/${activity.cmid}?sessionId=${sessionId}`);setData(d);}
-      catch(e){setErr(e.message);}
-      finally{setLoading(false);}
-    })();
+    (async()=>{setLoading(true);setErr('');setSuccess('');try{const d=await apiFetch(`/api/activity/${activity.type}/${activity.cmid}?sessionId=${sessionId}`);setData(d);}catch(e){setErr(e.message);}finally{setLoading(false);}})();
   },[activity.cmid]);
-
   async function submitAssign(){
-    if(!submitText.trim())return;
-    setSubmitting(true);
-    try{
-      const d=await apiFetch(`/api/assign/${activity.cmid}/submit?sessionId=${sessionId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId,onlineText:submitText})});
-      setSuccess(d.message);
-    }catch(e){setErr(e.message);}finally{setSubmitting(false);}
+    if(!submitText.trim())return;setSubmitting(true);
+    try{const d=await apiFetch(`/api/assign/${activity.cmid}/submit?sessionId=${sessionId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId,onlineText:submitText})});setSuccess(d.message||'הוגש בהצלחה!');}
+    catch(e){setErr(e.message);}finally{setSubmitting(false);}
   }
-
   if(loading)return<Loading text="טוען פעילות..."/>;
-  if(err)return<div className="eb">⚠️ {err}</div>;
+  if(err)return<div className="err-msg">⚠️ {err}</div>;
   if(!data)return null;
-
   return(
-    <div className="fade activity-viewer">
+    <div className="fade av-wrap">
       <div className="av-title">{data.title||activity.name}</div>
 
-      {/* RESOURCE */}
       {data.type==='resource'&&(
-        <div className="file-card">
-          <div className="file-icon">📄</div>
+        <div className="file-box">
+          <div className="file-emoji">📄</div>
           <div className="file-name">{data.title}</div>
           {data.description&&<div className="file-desc">{data.description}</div>}
           {data.fileUrl
-            ?<a href={`/api/proxy-file?url=${encodeURIComponent(data.fileUrl)}&sessionId=${sessionId}`} target="_blank" style={{textDecoration:'none'}}><button className="btn-download">⬇️ הורד קובץ</button></a>
-            :<a href={activity.link} target="_blank" style={{textDecoration:'none'}}><button className="btn-download">🔗 פתח ב-Moodle</button></a>
-          }
+            ?<a href={`/api/proxy-file?url=${encodeURIComponent(data.fileUrl)}&sessionId=${sessionId}`} target="_blank"><button className="btn btn-primary">⬇️ הורד קובץ</button></a>
+            :<a href={activity.link} target="_blank"><button className="btn btn-primary">🔗 פתח ב-Moodle</button></a>}
         </div>
       )}
 
-      {/* PAGE */}
-      {data.type==='page'&&(
-        <div className="av-description" dangerouslySetInnerHTML={{__html:data.content||'אין תוכן'}}/>
-      )}
+      {data.type==='page'&&<div className="av-desc" dangerouslySetInnerHTML={{__html:data.content||'אין תוכן'}}/>}
 
-      {/* FORUM */}
       {data.type==='forum'&&(
         <>
-          <div className="av-description">פורום · {data.discussions?.length||0} דיונים</div>
+          <div style={{fontSize:13,color:'var(--t2)',marginBottom:14}}>פורום · {data.discussions?.length||0} דיונים</div>
           {(data.discussions||[]).map(d=>(
-            <div key={d.id} className="discussion-item" onClick={()=>onDiscussion(d)}>
-              <div style={{fontSize:24}}>💬</div>
-              <div style={{flex:1}}>
-                <div className="di-subject">{d.subject}</div>
-                <div className="di-meta">מאת: {d.author} · {d.replies} תגובות</div>
-              </div>
-              <div className="act-arrow">›</div>
+            <div key={d.id} className="disc-item" onClick={()=>onDiscussion(d)}>
+              <span style={{fontSize:22}}>💬</span>
+              <div style={{flex:1}}><div className="disc-subj">{d.subject}</div><div className="disc-meta">מאת: {d.author} · {d.replies} תגובות</div></div>
+              <span className="act-chevron">›</span>
             </div>
           ))}
-          {(!data.discussions||data.discussions.length===0)&&<div className="em"><div className="em-i">💬</div><div className="em-t">אין דיונים בפורום זה</div></div>}
+          {(!data.discussions||data.discussions.length===0)&&<div className="empty"><div className="empty-icon">💬</div><div className="empty-text">אין דיונים</div></div>}
         </>
       )}
 
-      {/* ASSIGNMENT */}
       {data.type==='assign'&&(
         <>
-          {data.description&&<div className="av-description">{data.description}</div>}
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
-            {data.dueDate&&<div style={{background:'rgba(255,255,255,.04)',border:'1px solid var(--cb)',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:11,color:'var(--t3)',marginBottom:4}}>מועד הגשה</div><div style={{fontSize:13,fontWeight:600}}>{data.dueDate}</div></div>}
-            <div style={{background:'rgba(255,255,255,.04)',border:'1px solid var(--cb)',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:11,color:'var(--t3)',marginBottom:4}}>סטטוס</div><div style={{fontSize:13,fontWeight:600,color:data.status?.includes('Submit')||data.status?.includes('הוגש')?'var(--ok)':'var(--warn)'}}>{data.status||'לא הוגש'}</div></div>
+          {data.description&&<div className="av-desc">{data.description}</div>}
+          <div className="assign-status-grid">
+            {data.dueDate&&<div className="status-cell"><div className="status-lbl">מועד הגשה</div><div className="status-val">{data.dueDate}</div></div>}
+            <div className="status-cell"><div className="status-lbl">סטטוס</div><div className="status-val" style={{color:data.status?.includes('Submit')||data.status?.includes('הוגש')?'var(--green)':'var(--yellow)'}}>{data.status||'לא הוגש'}</div></div>
           </div>
           {data.textSubmission&&data.canSubmit&&(
-            <div className="submit-box">
-              <div className="reply-title">✏️ הגשת מטלה (טקסט)</div>
-              <textarea className="submit-ta" placeholder="כתוב את המטלה שלך כאן..." value={submitText} onChange={e=>setSubmitText(e.target.value)}/>
-              <button className="btn-sm" style={{marginTop:10}} onClick={submitAssign} disabled={submitting||!submitText.trim()}>{submitting?<><Spin/>מגיש...</>:'📤 הגש מטלה'}</button>
-              {success&&<div className="success-box">✅ {success}</div>}
+            <div className="reply-box">
+              <div className="reply-lbl">✏️ הגשת מטלה (טקסט)</div>
+              <textarea className="reply-ta" placeholder="כתוב את המטלה שלך כאן..." value={submitText} onChange={e=>setSubmitText(e.target.value)}/>
+              <button className="btn btn-primary btn-sm" style={{marginTop:10}} onClick={submitAssign} disabled={submitting||!submitText.trim()}>{submitting?<>מגיש...<Spinner/></>:'📤 הגש מטלה'}</button>
+              {success&&<div className="success-msg">✅ {success}</div>}
             </div>
           )}
-          {!data.textSubmission&&<div style={{marginTop:16}}><a href={activity.link} target="_blank" style={{textDecoration:'none'}}><button className="btn-sm">🔗 פתח ב-Moodle להגשה</button></a></div>}
+          {!data.textSubmission&&<div style={{marginTop:16}}><a href={activity.link} target="_blank"><button className="btn btn-ghost btn-sm">🔗 פתח ב-Moodle להגשה</button></a></div>}
         </>
       )}
 
-      {/* ATTENDANCE */}
       {data.type==='attendance'&&(
         <>
-          <div className="att-summary">
-            <div className="att-stat"><div className="att-val" style={{color:'var(--ok)'}}>{data.summary?.present||0}</div><div className="att-lbl">נוכחות</div></div>
-            <div className="att-stat"><div className="att-val" style={{color:'var(--danger)'}}>{data.summary?.absent||0}</div><div className="att-lbl">היעדרויות</div></div>
-            <div className="att-stat"><div className="att-val" style={{color:gcol(data.summary?.pct)}}>{data.summary?.pct||0}%</div><div className="att-lbl">אחוז נוכחות</div></div>
+          <div className="att-grid">
+            <div className="att-cell"><div className="att-val" style={{color:'var(--green)'}}>{data.summary?.present||0}</div><div className="att-lbl">נוכחות</div></div>
+            <div className="att-cell"><div className="att-val" style={{color:'var(--red)'}}>{data.summary?.absent||0}</div><div className="att-lbl">היעדרויות</div></div>
+            <div className="att-cell"><div className="att-val" style={{color:gradeColor(data.summary?.pct)}}>{data.summary?.pct||0}%</div><div className="att-lbl">אחוז</div></div>
           </div>
           {(data.sessions||[]).map((s,i)=>(
-            <div key={i} className="att-row">
-              <div className="att-status" style={{background:s.status==='present'?'var(--ok)':s.status==='absent'?'var(--danger)':'var(--t3)'}}/>
-              <div className="att-date">{s.date} {s.sessionType&&`· ${s.sessionType}`}</div>
+            <div key={i} className="att-sess">
+              <div className="att-dot" style={{background:s.status==='present'?'var(--green)':s.status==='absent'?'var(--red)':'var(--t3)'}}/>
+              <div className="att-date">{s.date}{s.sessionType&&` · ${s.sessionType}`}</div>
               <span className={`att-tag att-${s.status}`}>{s.statusLabel}</span>
               {s.points&&<span style={{fontSize:11,color:'var(--t3)'}}>{s.points}</span>}
             </div>
@@ -497,86 +567,68 @@ function ActivityViewer({activity,sessionId,onBack,onDiscussion}){
         </>
       )}
 
-      {/* UNKNOWN */}
       {!['resource','page','forum','assign','attendance'].includes(data.type)&&(
-        <div style={{textAlign:'center',padding:20}}>
-          <div style={{fontSize:40,marginBottom:12}}>🔗</div>
-          <a href={activity.link} target="_blank" style={{textDecoration:'none'}}><button className="btn-sm">פתח ב-Moodle</button></a>
-        </div>
+        <div style={{textAlign:'center',padding:'20px 0'}}><a href={activity.link} target="_blank"><button className="btn btn-ghost">🔗 פתח ב-Moodle</button></a></div>
       )}
     </div>
   );
 }
 
 // ── Discussion Viewer ─────────────────────────────────────────────────────────
-function DiscussionViewer({discussion,sessionId,onBack}){
+function DiscussionViewer({discussion,sessionId}){
   const[data,setData]=useState(null);const[loading,setLoading]=useState(true);const[err,setErr]=useState('');
   const[reply,setReply]=useState('');const[sending,setSending]=useState(false);const[success,setSuccess]=useState('');
-
   useEffect(()=>{
-    (async()=>{
-      setLoading(true);setErr('');
-      try{const d=await apiFetch(`/api/forum/discussion/${discussion.id}?sessionId=${sessionId}`);setData(d);}
-      catch(e){setErr(e.message);}finally{setLoading(false);}
-    })();
+    (async()=>{setLoading(true);setErr('');try{const d=await apiFetch(`/api/forum/discussion/${discussion.id}?sessionId=${sessionId}`);setData(d);}catch(e){setErr(e.message);}finally{setLoading(false);}})();
   },[discussion.id]);
-
   async function sendReply(){
     if(!reply.trim())return;setSending(true);
-    try{
-      await apiFetch(`/api/forum/discussion/${discussion.id}/post?sessionId=${sessionId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId,subject:'Re: '+discussion.subject,message:reply})});
-      setSuccess('התגובה פורסמה!');setReply('');
-    }catch(e){setErr(e.message);}finally{setSending(false);}
+    try{await apiFetch(`/api/forum/discussion/${discussion.id}/post?sessionId=${sessionId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId,subject:'Re: '+discussion.subject,message:reply})});setSuccess('התגובה פורסמה!');setReply('');}
+    catch(e){setErr(e.message);}finally{setSending(false);}
   }
-
   if(loading)return<Loading text="טוען דיון..."/>;
-  if(err)return<div className="eb">⚠️ {err}</div>;
+  if(err)return<div className="err-msg">⚠️ {err}</div>;
   return(
     <div className="fade">
       {(data?.posts||[]).map((p,i)=>(
-        <div key={i} className="post-card">
+        <div key={i} className="post-item">
           <div className="post-author">{p.author}</div>
-          {p.subject&&p.subject!==data.title&&<div className="post-subject">{p.subject}</div>}
-          <div className="post-content">{p.content}</div>
+          {p.subject&&p.subject!==data?.title&&<div className="post-subj">{p.subject}</div>}
+          <div className="post-body">{p.content}</div>
           {p.time&&<div className="post-time">{p.time}</div>}
         </div>
       ))}
-      {(!data?.posts||data.posts.length===0)&&<div className="em"><div className="em-i">💬</div><div className="em-t">אין הודעות בדיון</div></div>}
+      {(!data?.posts||data.posts.length===0)&&<div className="empty"><div className="empty-icon">💬</div><div className="empty-text">אין הודעות</div></div>}
       <div className="reply-box">
-        <div className="reply-title">✏️ הוסף תגובה</div>
+        <div className="reply-lbl">✏️ הוסף תגובה</div>
         <textarea className="reply-ta" placeholder="כתוב את תגובתך כאן..." value={reply} onChange={e=>setReply(e.target.value)}/>
-        <button className="btn-sm" style={{marginTop:10}} onClick={sendReply} disabled={sending||!reply.trim()}>{sending?<><Spin/>שולח...</>:'📤 פרסם תגובה'}</button>
-        {success&&<div className="success-box">✅ {success}</div>}
+        <button className="btn btn-primary btn-sm" style={{marginTop:10}} onClick={sendReply} disabled={sending||!reply.trim()}>{sending?<>שולח...<Spinner/></>:'📤 פרסם תגובה'}</button>
+        {success&&<div className="success-msg">✅ {success}</div>}
+        {err&&<div className="err-msg">⚠️ {err}</div>}
       </div>
     </div>
   );
 }
 
 // ── Courses Tab ───────────────────────────────────────────────────────────────
-function Courses({data,onCourseClick}){
+function CoursesTab({data,onCourseClick}){
   const{courses=[]}=data;
-  if(!courses.length)return<div className="em fade"><div className="em-i">📚</div><div className="em-t">אין קורסים</div></div>;
+  if(!courses.length)return<div className="empty fade"><div className="empty-icon">📚</div><div className="empty-text">אין קורסים</div></div>;
   return(
-    <div className="cg fade">
+    <div className="courses-grid fade">
       {courses.map(c=>(
-        <div key={c.id} className="cc" onClick={()=>onCourseClick(c)}>
+        <div key={c.id} className="course-card" onClick={()=>onCourseClick(c)}>
           <div className="cc-top">
-            <div className="cc-ab" style={{background:cc(c.fullname)}}>{ab(c.fullname)}</div>
-            <div style={{flex:1}}><div className="cc-nm">{c.fullname}</div><div className="cc-ct">{c.shortname}</div></div>
-            {c.grade!=null&&<div style={{fontSize:20,fontFamily:'Syne',fontWeight:800,color:gcol(c.grade)}}>{c.grade}</div>}
+            <div className="cc-avatar" style={{background:strColor(c.fullname)}}>{initials(c.fullname)}</div>
+            <div className="cc-info"><div className="cc-name">{c.fullname}</div><div className="cc-short">{c.shortname}</div></div>
+            {c.grade!=null&&<div className="cc-grade-big" style={{color:gradeColor(c.grade)}}>{c.grade}</div>}
           </div>
-          <div className="pb"><div className="pf" style={{width:c.progress+'%'}}/></div>
-          <div className="cc-bot">
-            <span className="cc-pl">{c.progress}% הושלם</span>
-            <span className={`gp g${gc(c.grade)}`} style={{cursor:'pointer'}}>פתח קורס →</span>
-          </div>
+          <div className="cc-bar"><div className="cc-fill" style={{width:(c.progress||0)+'%'}}/></div>
+          <div className="cc-footer"><span className="cc-pct">{c.progress||0}% הושלם</span><span className="cc-link">פתח קורס ›</span></div>
           {c.gradeItems&&c.gradeItems.length>0&&(
-            <div className="gi">
+            <div className="cc-items">
               {c.gradeItems.slice(0,3).map((it,i)=>(
-                <div key={i} className="gi-r">
-                  <span className="gi-n">{it.name}</span>
-                  <span className="gi-g" style={{color:gcol(it.grade)}}>{it.grade}</span>
-                </div>
+                <div key={i} className="cc-item-row"><span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{it.name}</span><span className="cc-item-g" style={{color:gradeColor(it.grade)}}>{it.grade}</span></div>
               ))}
             </div>
           )}
@@ -587,24 +639,21 @@ function Courses({data,onCourseClick}){
 }
 
 // ── Grades Tab ────────────────────────────────────────────────────────────────
-function Grades({data}){
+function GradesTab({data}){
   const{grades=[]}=data;
-  if(!grades.length)return<div className="em fade"><div className="em-i">📊</div><div className="em-t">אין ציונים</div></div>;
+  if(!grades.length)return<div className="empty fade"><div className="empty-icon">📊</div><div className="empty-text">אין ציונים</div></div>;
   return(
     <div className="fade">
       {grades.map((g,i)=>(
-        <div key={i} className="grade-card">
-          <div className="gc-top">
-            <div><div className="gc-nm">{g.coursename}</div>{g.items?.length>0&&<div style={{fontSize:11,color:'var(--t3)',marginTop:3}}>{g.items.length} פריטי ציון</div>}</div>
-            <div className={`gc-g ${gc(g.grade)}`}>{g.grade!=null?g.grade+'%':'—'}</div>
+        <div key={i} className="grade-block">
+          <div className="gb-head">
+            <div><div className="gb-name">{g.coursename}</div>{g.items?.length>0&&<div style={{fontSize:11,color:'var(--t3)',marginTop:3}}>{g.items.length} פריטי ציון</div>}</div>
+            <div className="gb-score" style={{color:gradeColor(g.grade)}}>{g.grade!=null?g.grade+'%':'—'}</div>
           </div>
           {g.items&&g.items.length>0&&(
-            <div className="gsi">
+            <div className="gb-items">
               {g.items.map((it,j)=>(
-                <div key={j} className="gsi-item">
-                  <div className="gsi-nm">{it.name}</div>
-                  <div className="gsi-v" style={{color:gcol(it.grade)}}>{it.grade}</div>
-                </div>
+                <div key={j} className="gb-item"><div className="gb-item-name">{it.name}</div><div className="gb-item-val" style={{color:gradeColor(it.grade)}}>{it.grade}</div></div>
               ))}
             </div>
           )}
@@ -620,32 +669,34 @@ function AssignmentsTab({data,onAssignClick}){
   const ov=assignments.filter(a=>a.overdue&&!a.completed).sort((a,b)=>a.duedate-b.duedate);
   const op=assignments.filter(a=>!a.completed&&!a.overdue).sort((a,b)=>a.duedate-b.duedate);
   const done=assignments.filter(a=>a.completed);
-  if(!assignments.length)return<div className="em fade"><div className="em-i">📝</div><div className="em-t">אין משימות</div></div>;
-  const Sec=({list,title,cls})=>list.length>0&&(<>
-    <div className="sec-lbl">{title} ({list.length})</div>
-    {list.map(a=>{const{cls:tc,label}=dtag(a);const dc=a.completed?'done':a.overdue?'ov':'open';return(
-      <div key={a.id} className={`acard ${cls||''}`} onClick={()=>a.cmid&&onAssignClick(a)}>
-        <div className={`a-dot ${dc}`}/>
-        <div className="a-info"><div className="a-nm">{a.name}</div><div className="a-co">{a.coursename}</div><div className="a-dt">{fmtD(a.duedate)}</div></div>
-        <span className={`dt ${tc}`}>{label}</span>
-        {a.cmid&&<div className="act-arrow">›</div>}
-      </div>
-    );})}
-  </>);
-  return<div className="fade"><Sec list={ov} title="🔴 באיחור" cls="ov"/><Sec list={op} title="📌 פתוחות"/><Sec list={done} title="✅ הושלמו" cls="done"/></div>;
+  if(!assignments.length)return<div className="empty fade"><div className="empty-icon">📝</div><div className="empty-text">אין משימות</div></div>;
+  const Section=({list,title,type})=>list.length>0&&(
+    <>
+      <div className="assign-section-label">{title} ({list.length})</div>
+      {list.map(a=>{const{cls,label}=dueTag(a);return(
+        <div key={a.id} className={`assign-card${type==='ov'?' overdue':type==='done'?' done':''}`} onClick={()=>a.cmid&&onAssignClick(a)}>
+          <div className={`a-dot2 ${type==='done'?'done':type==='ov'?'overdue':'open'}`}/>
+          <div className="a-body"><div className="a-name">{a.name}</div><div className="a-meta">{a.coursename}</div><div className="a-date">{fmtDate(a.duedate)}</div></div>
+          <span className={`dt-chip ${cls}`}>{label}</span>
+          {a.cmid&&<span className="a-arrow">›</span>}
+        </div>
+      );})}
+    </>
+  );
+  return<div className="fade"><Section list={ov} title="🔴 באיחור" type="ov"/><Section list={op} title="📌 פתוחות" type="op"/><Section list={done} title="✅ הושלמו" type="done"/></div>;
 }
 
 // ── Messages Tab ──────────────────────────────────────────────────────────────
-function Messages({data}){
+function MessagesTab({data}){
   const{messages=[]}=data;
-  if(!messages.length)return<div className="em fade"><div className="em-i">💬</div><div className="em-t">אין הודעות</div></div>;
+  if(!messages.length)return<div className="empty fade"><div className="empty-icon">💬</div><div className="empty-text">אין הודעות</div></div>;
   return(
     <div className="fade">
       {messages.map(m=>(
-        <div key={m.id} className={`mc ${m.read?'':'unread'}`}>
-          <div className={`md ${m.read?'read':'unread'}`}/>
-          <div className="mb"><div className="ms">{m.subject}</div><div className="mf">מאת: {m.sender}</div>{m.text&&<div className="mt-txt">{m.text.slice(0,200)}</div>}</div>
-          <div className="mtime">{ago(m.timecreated)}</div>
+        <div key={m.id} className={`msg-card ${m.read?'':'unread'}`}>
+          <div className={`msg-indicator ${m.read?'read':'unread'}`}/>
+          <div className="msg-body"><div className="msg-subj">{m.subject}</div><div className="msg-from">מאת: {m.sender}</div>{m.text&&<div className="msg-text">{m.text.slice(0,200)}</div>}</div>
+          <div className="msg-time">{timeAgo(m.timecreated)}</div>
         </div>
       ))}
     </div>
@@ -657,9 +708,8 @@ function Dashboard({sessionId,fullname,onLogout}){
   const[tab,setTab]=useState('overview');
   const[data,setData]=useState(null);const[loading,setLoading]=useState(true);const[err,setErr]=useState('');
   const[refreshing,setRefreshing]=useState(false);
-
-  // Navigation stack for drill-down
-  const[navStack,setNavStack]=useState([]);// [{type:'course'|'activity'|'discussion', data}]
+  const[sidebarOpen,setSidebarOpen]=useState(false);
+  const[navStack,setNavStack]=useState([]);
   const curNav=navStack[navStack.length-1];
 
   const load=useCallback(async(refresh=false)=>{
@@ -668,11 +718,11 @@ function Dashboard({sessionId,fullname,onLogout}){
     catch(e){if(e.message==='SESSION_EXPIRED'){onLogout();return}setErr(e.message);}
     finally{setLoading(false);setRefreshing(false);}
   },[sessionId]);
-
   useEffect(()=>{load();},[load]);
 
   function navigate(type,d){setNavStack(s=>[...s,{type,data:d}]);}
   function goBack(){setNavStack(s=>s.slice(0,-1));}
+  function switchTab(t){setTab(t);setNavStack([]);setSidebarOpen(false);}
 
   const TABS=[
     {id:'overview',icon:'🏠',label:'סקירה'},
@@ -682,91 +732,130 @@ function Dashboard({sessionId,fullname,onLogout}){
     {id:'messages',icon:'💬',label:'הודעות',badge:data?.stats?.unreadMessages},
   ];
 
-  const TITLES={
-    overview:`שלום, ${fullname}! 👋`,
-    courses:'הקורסים שלי',grades:'ציונים ומבחנים',
-    assignments:'משימות',messages:'הודעות',
-  };
-  const SUBS={
-    overview:'סקירה כללית של הפעילות שלך',
-    courses:'לחץ על קורס לצפייה בתוכן',
-    grades:'ציונים מפורטים לפי קורס ופריט',
-    assignments:'לחץ על משימה לצפייה ולהגשה',
-    messages:'הודעות ועדכונים ממרצים',
-  };
+  const TITLES={overview:`שלום, ${fullname}! 👋`,courses:'הקורסים שלי',grades:'ציונים',assignments:'משימות',messages:'הודעות'};
+  const SUBS={overview:'סקירה כללית',courses:'לחץ על קורס לצפייה בתוכן',grades:'ציונים מפורטים לפי קורס',assignments:'לחץ על משימה לפתיחה ולהגשה',messages:'הודעות ממרצים'};
 
-  async function logout(){
-    try{await fetch(`${API}/api/logout`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId})})}catch{}
-    onLogout();
-  }
-
-  const initials=fullname?fullname.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase():'?';
-
-  // Determine page title
-  let pageTitle=TITLES[tab], pageSub=SUBS[tab];
+  let pageTitle=TITLES[tab],pageSub=SUBS[tab];
   if(curNav){
-    if(curNav.type==='course'){pageTitle=curNav.data.fullname;pageSub='תוכן הקורס — לחץ על פעילות לפתיחה';}
+    if(curNav.type==='course'){pageTitle=curNav.data.fullname;pageSub='תוכן הקורס';}
     else if(curNav.type==='activity'){pageTitle=curNav.data.name||'פעילות';pageSub=curNav.data.type;}
     else if(curNav.type==='discussion'){pageTitle=curNav.data.subject;pageSub='דיון בפורום';}
   }
 
-  return(
-    <div className="app">
-      <aside className="sb">
-        <div className="sb-top"><div className="sb-logo"><div className="sb-li">KC</div><div className="sb-lt">KodCode Portal</div></div></div>
-        <div className="sb-user"><div className="sb-av">{initials}</div><div><div className="sb-un">{fullname}</div><div className="sb-ur">תלמיד</div></div></div>
-        <nav className="sb-nav">
-          <div className="sb-section">תפריט ראשי</div>
-          {TABS.map(t=>(
-            <div key={t.id} className={`ni${tab===t.id&&!curNav?' active':''}`} onClick={()=>{setTab(t.id);setNavStack([]);}}>
-              <span className="ni-icon">{t.icon}</span>
-              <span>{t.label}</span>
-              {t.badge>0&&<span className={`nb${t.badgeRed?' nb-red':''}`}>{t.badge}</span>}
-            </div>
-          ))}
-          {data?.courses?.length>0&&<><div className="sb-section">קורסים</div>
-          {data.courses.map(c=>(
-            <div key={c.id} className={`ni${curNav?.type==='course'&&curNav.data.id===c.id?' active':''}`}
-              onClick={()=>{setTab('courses');setNavStack([{type:'course',data:c}]);}}>
-              <span className="ni-icon" style={{fontSize:13,width:20,height:20,background:cc(c.fullname),borderRadius:5,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:700}}>{ab(c.fullname)[0]}</span>
-              <span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.shortname||c.fullname}</span>
-            </div>
-          ))}</>}
-        </nav>
-        <div className="sb-foot"><button className="btn-lo" onClick={logout}>🚪 התנתק</button></div>
-      </aside>
+  async function logout(){
+    try{await fetch(`${API}/api/logout`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId})})}catch{}onLogout();
+  }
 
-      <main className="main">
-        <div className="ph">
-          <div>
-            <div className="pt">{pageTitle}</div>
-            <div className="ps">{pageSub}</div>
+  const avi=fullname?fullname.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase():'?';
+
+  // Build breadcrumbs
+  const crumbs=[];
+  crumbs.push({label:TITLES[tab],onClick:()=>setNavStack([])});
+  navStack.forEach((n,i)=>{
+    const label=n.type==='course'?n.data.fullname:n.type==='discussion'?n.data.subject:n.data.name||'פעילות';
+    crumbs.push({label,onClick:()=>setNavStack(navStack.slice(0,i+1))});
+  });
+
+  const Sidebar=(
+    <aside className={`sb${sidebarOpen?' open':''}`}>
+      <div className="sb-brand"><div className="sb-icon">KC</div><div className="sb-title">KodCode Portal</div></div>
+      <div className="sb-user"><div className="sb-av">{avi}</div><div><div className="sb-uname">{fullname}</div><div className="sb-urole">תלמיד</div></div></div>
+      <div className="sb-scroll">
+        <div className="sb-section">תפריט ראשי</div>
+        {TABS.map(t=>(
+          <div key={t.id} className={`ni${tab===t.id&&!curNav?' active':''}`} onClick={()=>switchTab(t.id)}>
+            <span className="ni-icon">{t.icon}</span>
+            <span>{t.label}</span>
+            {t.badge>0&&<span className={`ni-badge${t.badgeRed?' red':''}`}>{t.badge}</span>}
           </div>
-          <div style={{display:'flex',gap:8,alignItems:'center'}}>
-            {curNav&&<button className="btn-back" onClick={goBack}>← חזור</button>}
-            {!curNav&&data&&<button className="btn-sm" onClick={()=>load(true)} disabled={refreshing}>{refreshing?'...':'🔄 רענן'}</button>}
-          </div>
-        </div>
-
-        {loading&&<Loading text="שולף נתונים מ-Moodle..."/>}
-        {!loading&&err&&<div className="eb">⚠️ {err} <button style={{marginTop:8,display:'block',cursor:'pointer',background:'none',border:'1px solid currentColor',borderRadius:6,padding:'3px 10px',color:'inherit',fontFamily:'inherit',fontSize:11}} onClick={()=>load()}>נסה שוב</button></div>}
-
-        {!loading&&!err&&data&&(
+        ))}
+        {data?.courses?.length>0&&(
           <>
-            {/* Navigation drill-down */}
-            {curNav?.type==='discussion'&&<DiscussionViewer discussion={curNav.data} sessionId={sessionId} onBack={goBack}/>}
-            {curNav?.type==='activity'&&<ActivityViewer activity={curNav.data} sessionId={sessionId} onBack={goBack} onDiscussion={d=>navigate('discussion',d)}/>}
-            {curNav?.type==='course'&&<CourseContent course={curNav.data} sessionId={sessionId} onActivity={act=>navigate('activity',act)} onBack={goBack}/>}
-
-            {/* Regular tabs (shown only when no nav) */}
-            {!curNav&&tab==='overview'&&<Overview data={data} fullname={fullname} onCourseClick={c=>{setTab('courses');navigate('course',c);}} onAssignClick={a=>a.cmid&&navigate('activity',{...a,type:'assign'})}/>}
-            {!curNav&&tab==='courses'&&<Courses data={data} onCourseClick={c=>navigate('course',c)}/>}
-            {!curNav&&tab==='grades'&&<Grades data={data}/>}
-            {!curNav&&tab==='assignments'&&<AssignmentsTab data={data} onAssignClick={a=>navigate('activity',{...a,type:'assign'})}/>}
-            {!curNav&&tab==='messages'&&<Messages data={data}/>}
+            <div className="sb-section">קורסים</div>
+            {data.courses.map(c=>(
+              <div key={c.id} className={`ni${curNav?.type==='course'&&curNav.data.id===c.id?' active':''}`}
+                onClick={()=>{setTab('courses');setNavStack([{type:'course',data:c}]);setSidebarOpen(false);}}>
+                <span style={{width:22,height:22,background:strColor(c.fullname),borderRadius:6,display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'#fff',flexShrink:0}}>{initials(c.fullname)[0]}</span>
+                <span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.shortname||c.fullname}</span>
+              </div>
+            ))}
           </>
         )}
-      </main>
+      </div>
+      <div className="sb-foot"><button className="sb-logout" onClick={logout}>🚪 התנתק</button></div>
+    </aside>
+  );
+
+  return(
+    <div className="app">
+      {sidebarOpen&&<div className="mob-overlay open" onClick={()=>setSidebarOpen(false)}/>}
+      {Sidebar}
+      <div className="main">
+        {/* Mobile topbar */}
+        <div className="topbar">
+          <button className="topbar-burger" onClick={()=>setSidebarOpen(s=>!s)}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="2" rx="1" fill="currentColor"/><rect x="2" y="9" width="16" height="2" rx="1" fill="currentColor"/><rect x="2" y="13" width="16" height="2" rx="1" fill="currentColor"/></svg>
+          </button>
+          <div className="topbar-brand"><div className="topbar-icon">KC</div><span className="topbar-name">KodCode Portal</span></div>
+          {data&&<button className="btn btn-ghost btn-sm" onClick={()=>load(true)} disabled={refreshing}>{refreshing?'...':'🔄'}</button>}
+        </div>
+
+        {/* Main content */}
+        <div className="content">
+          {/* Breadcrumbs (only when drilling down) */}
+          {curNav&&crumbs.length>1&&(
+            <div className="breadcrumb">
+              {crumbs.map((c,i)=>(
+                <React.Fragment key={i}>
+                  {i>0&&<span className="bc-sep">›</span>}
+                  <span className={`bc-item${i===crumbs.length-1?' ':', '}`} onClick={i<crumbs.length-1?c.onClick:undefined} style={{color:i===crumbs.length-1?'var(--text)':'var(--t3)'}}>{c.label}</span>
+                </React.Fragment>
+              ))}
+            </div>
+          )}
+
+          {/* Page header */}
+          <div className="content-header">
+            <div className="ch-left">
+              <div className="ch-title">{pageTitle}</div>
+              <div className="ch-sub">{pageSub}</div>
+            </div>
+            <div className="ch-actions">
+              {curNav&&<button className="btn btn-ghost btn-sm" onClick={goBack}>← חזור</button>}
+              {!curNav&&data&&<button className="btn btn-ghost btn-sm" onClick={()=>load(true)} disabled={refreshing} style={{display:'none'}}>🔄 רענן</button>}
+            </div>
+          </div>
+
+          {loading&&<Loading text="שולף נתונים מ-Moodle..."/>}
+          {!loading&&err&&<div className="err-msg">⚠️ {err} <button style={{marginTop:8,display:'block',cursor:'pointer',background:'none',border:'1px solid currentColor',borderRadius:6,padding:'4px 10px',color:'inherit',fontFamily:'inherit',fontSize:12}} onClick={()=>load()}>נסה שוב</button></div>}
+
+          {!loading&&!err&&data&&(
+            <>
+              {curNav?.type==='discussion'&&<DiscussionViewer discussion={curNav.data} sessionId={sessionId}/>}
+              {curNav?.type==='activity'&&<ActivityViewer activity={curNav.data} sessionId={sessionId} onDiscussion={d=>navigate('discussion',d)}/>}
+              {curNav?.type==='course'&&<CourseContent course={curNav.data} sessionId={sessionId} onActivity={act=>navigate('activity',act)}/>}
+              {!curNav&&tab==='overview'&&<Overview data={data} fullname={fullname} onCourseClick={c=>{setTab('courses');navigate('course',c);}} onAssignClick={a=>a.cmid&&navigate('activity',{...a,type:'assign'})}/>}
+              {!curNav&&tab==='courses'&&<CoursesTab data={data} onCourseClick={c=>navigate('course',c)}/>}
+              {!curNav&&tab==='grades'&&<GradesTab data={data}/>}
+              {!curNav&&tab==='assignments'&&<AssignmentsTab data={data} onAssignClick={a=>navigate('activity',{...a,type:'assign'})}/>}
+              {!curNav&&tab==='messages'&&<MessagesTab data={data}/>}
+            </>
+          )}
+        </div>
+
+        {/* Mobile bottom nav */}
+        <nav className="bot-nav">
+          <div className="bot-nav-inner">
+            {TABS.map(t=>(
+              <div key={t.id} className={`bn-item${tab===t.id&&!curNav?' active':''}`} onClick={()=>switchTab(t.id)}>
+                {t.badge>0&&<span className="bn-dot"/>}
+                <span className="bn-icon">{t.icon}</span>
+                <span className="bn-label">{t.label}</span>
+              </div>
+            ))}
+          </div>
+        </nav>
+      </div>
     </div>
   );
 }
