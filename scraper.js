@@ -1,314 +1,352 @@
-const puppeteer = require('puppeteer');
 const axios = require('axios');
 const cheerio = require('cheerio');
 
 const MOODLE_URL = 'https://www.kodcodeacademy.org.il';
 
-function getChromiumPath() {
-  const candidates = [
-    process.env.PUPPETEER_EXECUTABLE_PATH,
-    '/usr/bin/chromium',
-    '/usr/bin/chromium-browser',
-    '/usr/bin/google-chrome',
-    '/usr/bin/google-chrome-stable',
-  ].filter(Boolean);
-  const fs = require('fs');
-  for (const p of candidates) {
-    try { if (fs.existsSync(p)) return p; } catch {}
-  }
-  return undefined;
+const BASE_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+  'Accept-Language': 'he-IL,he;q=0.9,en-US;q=0.8,en;q=0.7',
+  'Connection': 'keep-alive',
+};
+
+function parseCookies(headers, existing = {}) {
+  (headers['set-cookie'] || []).forEach(c => {
+    const [pair] = c.split(';');
+    const idx = pair.indexOf('=');
+    if (idx > 0) existing[pair.slice(0, idx).trim()] = pair.slice(idx + 1).trim();
+  });
+  return existing;
+}
+
+function cookieStr(map) {
+  return Object.entries(map).map(([k, v]) => `${k}=${v}`).join('; ');
 }
 
 async function loginWithPuppeteer(username, password) {
-  const HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Language': 'he-IL,he;q=0.9,en-US;q=0.8,en;q=0.7',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Connection': 'keep-alive',
-    'Upgrade-Insecure-Requests': '1',
-  };
+  const cm = {};
 
-  // Step 1: GET login page
-  console.log('[Login] Fetching login page...');
-  const client = axios.create({ maxRedirects: 0, validateStatus: s => s < 400 });
-
+  // 1. GET login page → grab logintoken + initial cookies
   const getRes = await axios.get(`${MOODLE_URL}/login/index.php`, {
-    headers: HEADERS,
+    headers: BASE_HEADERS,
     maxRedirects: 5,
   });
+  parseCookies(getRes.headers, cm);
 
   const $login = cheerio.load(getRes.data);
   const logintoken = $login('input[name="logintoken"]').val() || '';
-  console.log(`[Login] logintoken: ${logintoken ? logintoken.slice(0,10)+'...' : 'NOT FOUND'}`);
+  console.log(`[Login] logintoken: ${logintoken ? 'OK' : 'MISSING'}, cookies: ${Object.keys(cm)}`);
 
-  // Collect cookies from GET response
-  const cookieMap = {};
-  (getRes.headers['set-cookie'] || []).forEach(c => {
-    const [pair] = c.split(';');
-    const idx = pair.indexOf('=');
-    if (idx > 0) cookieMap[pair.slice(0, idx).trim()] = pair.slice(idx + 1).trim();
-  });
-  console.log(`[Login] Initial cookies: ${JSON.stringify(Object.keys(cookieMap))}`);
-
-  // Step 2: POST login — follow redirects manually to collect all cookies
+  // 2. POST credentials
   const params = new URLSearchParams();
   params.append('username', username);
   params.append('password', password);
   params.append('logintoken', logintoken);
   params.append('anchor', '');
 
-  console.log('[Login] POSTing credentials...');
-
-  let postRes;
-  let redirectUrl = `${MOODLE_URL}/login/index.php`;
-  let hops = 0;
-
-  // Manual redirect loop to collect cookies at each hop
-  const reqHeaders = () => ({
-    ...HEADERS,
-    'Content-Type': 'application/x-www-form-urlencoded',
-    'Referer': `${MOODLE_URL}/login/index.php`,
-    'Origin': MOODLE_URL,
-    'Cookie': Object.entries(cookieMap).map(([k,v]) => `${k}=${v}`).join('; '),
-  });
-
-  postRes = await axios.post(redirectUrl, params.toString(), {
-    headers: reqHeaders(),
+  let url = `${MOODLE_URL}/login/index.php`;
+  let res = await axios.post(url, params.toString(), {
+    headers: {
+      ...BASE_HEADERS,
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Cookie': cookieStr(cm),
+      'Referer': url,
+      'Origin': MOODLE_URL,
+    },
     maxRedirects: 0,
-    validateStatus: s => s < 400,
+    validateStatus: s => s < 600,
   });
 
-  // Follow up to 5 redirects manually
-  while ((postRes.status === 301 || postRes.status === 302 || postRes.status === 303) && hops < 5) {
-    (postRes.headers['set-cookie'] || []).forEach(c => {
-      const [pair] = c.split(';');
-      const idx = pair.indexOf('=');
-      if (idx > 0) cookieMap[pair.slice(0, idx).trim()] = pair.slice(idx + 1).trim();
-    });
-    redirectUrl = postRes.headers['location'];
-    if (!redirectUrl.startsWith('http')) redirectUrl = MOODLE_URL + redirectUrl;
-    console.log(`[Login] Redirect ${hops + 1}: ${redirectUrl}`);
-    postRes = await axios.get(redirectUrl, {
-      headers: { ...HEADERS, Cookie: Object.entries(cookieMap).map(([k,v]) => `${k}=${v}`).join('; ') },
+  // 3. Follow all redirects manually (to collect every Set-Cookie)
+  for (let i = 0; i < 8 && (res.status === 301 || res.status === 302 || res.status === 303); i++) {
+    parseCookies(res.headers, cm);
+    url = res.headers.location;
+    if (!url.startsWith('http')) url = MOODLE_URL + url;
+    console.log(`[Login] Redirect ${i + 1}: ${url}`);
+    res = await axios.get(url, {
+      headers: { ...BASE_HEADERS, Cookie: cookieStr(cm) },
       maxRedirects: 0,
-      validateStatus: s => s < 400,
+      validateStatus: s => s < 600,
     });
-    hops++;
+  }
+  parseCookies(res.headers, cm);
+
+  // 4. Check for error
+  const $page = cheerio.load(res.data);
+  const errMsg = $page('.loginerrors, #loginerrormessage, .alert-danger').text().trim();
+  if (errMsg) throw new Error(`Login failed: ${errMsg}`);
+  if (url.includes('/login/index.php') && !url.includes('testsession')) {
+    throw new Error('Login failed: Redirected back to login page');
   }
 
-  // Collect any final cookies
-  (postRes.headers['set-cookie'] || []).forEach(c => {
-    const [pair] = c.split(';');
-    const idx = pair.indexOf('=');
-    if (idx > 0) cookieMap[pair.slice(0, idx).trim()] = pair.slice(idx + 1).trim();
-  });
+  // 5. Extract sesskey + userid
+  const sesskey = res.data.match(/"sesskey":"([^"]+)"/)?.[1] || null;
+  let userid = res.data.match(/"userid":(\d+)/)?.[1];
 
-  console.log(`[Login] Final URL: ${redirectUrl}, status: ${postRes.status}`);
-  console.log(`[Login] All cookies: ${JSON.stringify(Object.keys(cookieMap))}`);
-
-  const $page = cheerio.load(postRes.data);
-
-  // Check for error message
-  const errorMsg = $page('.loginerrors, #loginerrormessage, .alert-danger').text().trim();
-  if (errorMsg) throw new Error(`Login failed: ${errorMsg}`);
-
-  // If still on login page with no error, credentials might be wrong
-  if (redirectUrl.includes('/login/index.php') && !redirectUrl.includes('loginredirect')) {
-    const bodySnippet = $page('body').text().slice(0, 200).replace(/\s+/g,' ');
-    console.log('[Login] Still on login page. Body:', bodySnippet);
-    throw new Error('Login failed: Still on login page after submit');
-  }
-
-  // Extract sesskey
-  const html = postRes.data;
-  const sesskeyMatch = html.match(/"sesskey":"([^"]+)"/) || html.match(/sesskey=([a-zA-Z0-9]+)/);
-  const useridMatch = html.match(/"userid":(\d+)/);
-  const sesskey = sesskeyMatch ? sesskeyMatch[1] : null;
-  const userid = useridMatch ? parseInt(useridMatch[1]) : null;
-
-  console.log(`[Login] sesskey: ${sesskey ? 'FOUND' : 'NOT FOUND'}, userid: ${userid}`);
-
-  if (!sesskey) {
-    // Try fetching dashboard explicitly
-    console.log('[Login] sesskey not found, fetching dashboard...');
-    const dashRes = await axios.get(`${MOODLE_URL}/my/`, {
-      headers: { ...HEADERS, Cookie: Object.entries(cookieMap).map(([k,v]) => `${k}=${v}`).join('; ') },
+  // Fallback: get userid from profile page
+  if (!userid) {
+    const prof = await axios.get(`${MOODLE_URL}/user/profile.php`, {
+      headers: { ...BASE_HEADERS, Cookie: cookieStr(cm) },
       maxRedirects: 5,
     });
-    const m1 = dashRes.data.match(/"sesskey":"([^"]+)"/);
-    const m2 = dashRes.data.match(/"userid":(\d+)/);
-    if (m1) {
-      const sesskey2 = m1[1];
-      const userid2 = m2 ? parseInt(m2[1]) : null;
-      const $d = cheerio.load(dashRes.data);
-      const fullname2 = $d('.usertext').first().text().trim() || 'משתמש';
-      const cookies2 = Object.entries(cookieMap).map(([name, value]) => ({ name, value, domain: 'www.kodcodeacademy.org.il' }));
-      console.log(`[Login] Success via dashboard! User: ${fullname2}`);
-      return { cookies: cookies2, sesskey: sesskey2, userid: userid2, fullname: fullname2 };
-    }
-    throw new Error('Login failed: Could not extract session key');
+    parseCookies(prof.headers, cm);
+    userid = prof.data.match(/"userid":(\d+)/)?.[1]
+      || prof.data.match(/user\/profile\.php\?id=(\d+)/)?.[1]
+      || prof.data.match(/id=(\d+)/)?.[1];
   }
+  userid = parseInt(userid) || null;
 
+  if (!sesskey) throw new Error('Login failed: Could not extract session key');
+
+  // 6. Get fullname
   const fullname = $page('.usertext').first().text().trim()
-    || $page('a[data-key="myprofile"]').text().trim()
-    || 'משתמש';
+    || $page('[data-key="myprofile"]').first().text().trim()
+    || username;
 
-  const cookies = Object.entries(cookieMap).map(([name, value]) => ({ name, value, domain: 'www.kodcodeacademy.org.il' }));
-  console.log(`[Login] Success! User: ${fullname}, cookies: ${cookies.length}`);
-  return { cookies, sesskey, userid, fullname };
+  const cookies = Object.entries(cm).map(([name, value]) => ({ name, value, domain: 'www.kodcodeacademy.org.il' }));
+  console.log(`[Login] Success! sesskey OK, userid: ${userid}, name: ${fullname}`);
+
+  return { cookies, cookieMap: cm, sesskey, userid, fullname };
 }
 
-function cookiesToHeader(cookies) {
-  return cookies.map(c => `${c.name}=${c.value}`).join('; ');
-}
+// ─── HTTP client ──────────────────────────────────────────────────────────────
 
-function buildAxiosClient(cookies) {
-  const cookieHeader = cookiesToHeader(cookies);
+function makeClient(cookieMap) {
+  const cs = cookieStr(cookieMap);
   return axios.create({
     baseURL: MOODLE_URL,
     headers: {
-      Cookie: cookieHeader,
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      Accept: 'application/json, text/plain, */*',
-      'Accept-Language': 'he-IL,he;q=0.9,en;q=0.8',
+      ...BASE_HEADERS,
+      Cookie: cs,
+      Accept: 'application/json, text/html, */*',
     },
-    timeout: 30000,
+    timeout: 20000,
+    maxRedirects: 5,
   });
 }
 
+async function ajaxCall(client, sesskey, methods) {
+  const res = await client.post(`/lib/ajax/service.php?sesskey=${sesskey}`, methods, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return res.data;
+}
+
+// ─── COURSES ─────────────────────────────────────────────────────────────────
+
 async function fetchCourses(client, sesskey) {
   try {
-    const response = await client.post('/lib/ajax/service.php', [
-      {
-        index: 0,
-        methodname: 'core_course_get_enrolled_courses_by_timeline_classification',
-        args: {
-          offset: 0,
-          limit: 50,
-          classification: 'all',
-          sort: 'fullname',
-          customfieldname: '',
-          customfieldvalue: '',
-        },
-      },
-    ], { params: { sesskey } });
-
-    const data = response.data;
-    if (!Array.isArray(data) || !data[0]) return [];
-    const result = data[0];
-    if (result.error) { console.error('Courses API error:', result.exception); return []; }
-    const courses = result.data?.courses || [];
-    return courses.map(course => ({
-      id: course.id,
-      fullname: course.fullname,
-      shortname: course.shortname,
-      progress: course.progress || 0,
-      category: course.coursecategory || '',
-      url: `${MOODLE_URL}/course/view.php?id=${course.id}`,
+    const data = await ajaxCall(client, sesskey, [{
+      index: 0,
+      methodname: 'core_course_get_enrolled_courses_by_timeline_classification',
+      args: { offset: 0, limit: 50, classification: 'all', sort: 'fullname', customfieldname: '', customfieldvalue: '' },
+    }]);
+    if (data[0]?.error) { console.error('Courses error:', data[0].exception?.message); return []; }
+    return (data[0]?.data?.courses || []).map(c => ({
+      id: c.id,
+      fullname: c.fullname,
+      shortname: c.shortname,
+      progress: Math.round(c.progress || 0),
+      category: c.coursecategory || '',
+      imageurl: c.courseimage || null,
+      url: `${MOODLE_URL}/course/view.php?id=${c.id}`,
+      startdate: c.startdate,
+      enddate: c.enddate,
     }));
-  } catch (err) {
-    console.error('Error fetching courses:', err.message);
+  } catch (e) {
+    console.error('fetchCourses error:', e.message);
     return [];
   }
 }
 
-async function fetchGrades(client) {
+// ─── GRADES (per-course user report) ─────────────────────────────────────────
+
+async function fetchGradesForCourse(client, courseId, courseName) {
   try {
-    const response = await client.get('/grade/report/overview/index.php');
-    const $ = cheerio.load(response.data);
-    const grades = [];
-    $('table.generaltable tbody tr, .grade-report-overview table tbody tr').each((i, row) => {
-      const cells = $(row).find('td');
-      if (cells.length >= 2) {
-        const courseName = $(cells[0]).text().trim();
-        const gradeText = $(cells[cells.length - 1]).text().trim();
-        if (courseName && gradeText) {
-          const gradeNum = parseFloat(gradeText.replace(',', '.'));
-          grades.push({ coursename: courseName, grade: isNaN(gradeNum) ? gradeText : gradeNum, isNumeric: !isNaN(gradeNum) });
-        }
-      }
+    const res = await client.get(`/grade/report/user/index.php?id=${courseId}`);
+    const $ = cheerio.load(res.data);
+    const items = [];
+
+    $('table tr').each((i, row) => {
+      const cells = $(row).find('th, td');
+      if (cells.length < 3) return;
+
+      const name = $(cells[0]).text().replace(/\s+/g, ' ').trim();
+      const gradeText = $(cells[2]).text().replace(/\s+/g, ' ').trim();
+      const rangeText = $(cells[3]) ? $(cells[3]).text().trim() : '';
+      const pctText = $(cells[4]) ? $(cells[4]).text().trim() : '';
+
+      // Skip headers and empty rows
+      if (!name || name === 'Grade item' || name === 'Course total header') return;
+      if (gradeText === '-' || gradeText === '' || gradeText === 'Grade') return;
+
+      const gradeNum = parseFloat(gradeText.replace(',', '.'));
+      if (isNaN(gradeNum)) return;
+
+      // Detect if it's a total/aggregation row
+      const isTotal = name.toLowerCase().includes('total') || name.includes('סה"כ') || $(cells[0]).find('.level1').length > 0;
+
+      items.push({
+        name: name.replace(/^(Manual item|Aggregation)/i, '').trim() || name,
+        grade: gradeNum,
+        range: rangeText,
+        percentage: parseFloat(pctText) || null,
+        isTotal,
+        courseid: courseId,
+        coursename: courseName,
+      });
     });
-    return grades;
-  } catch (err) {
-    console.error('Error fetching grades:', err.message);
+
+    return items;
+  } catch (e) {
+    console.error(`fetchGrades course ${courseId} error:`, e.message);
     return [];
   }
 }
+
+async function fetchAllGrades(client, courses) {
+  const results = await Promise.all(
+    courses.map(c => fetchGradesForCourse(client, c.id, c.fullname))
+  );
+
+  // Build per-course summary + all items
+  const courseSummaries = [];
+  const allItems = [];
+
+  courses.forEach((course, i) => {
+    const items = results[i];
+    allItems.push(...items);
+
+    const total = items.find(it => it.isTotal);
+    const nonTotal = items.filter(it => !it.isTotal);
+    const avg = nonTotal.length
+      ? Math.round(nonTotal.reduce((s, it) => s + it.grade, 0) / nonTotal.length)
+      : (total ? total.grade : null);
+
+    courseSummaries.push({
+      courseid: course.id,
+      coursename: course.fullname,
+      grade: total ? total.grade : avg,
+      items: nonTotal,
+    });
+  });
+
+  return { summaries: courseSummaries, items: allItems };
+}
+
+// ─── ASSIGNMENTS & EVENTS ────────────────────────────────────────────────────
 
 async function fetchAssignments(client, sesskey) {
   try {
     const now = Math.floor(Date.now() / 1000);
-    const response = await client.post('/lib/ajax/service.php', [
-      {
-        index: 0,
-        methodname: 'core_calendar_get_action_events_by_timesort',
-        args: { timesortfrom: now - 30 * 86400, timesortto: now + 90 * 86400, limitnum: 50 },
-      },
-    ], { params: { sesskey } });
+    const data = await ajaxCall(client, sesskey, [{
+      index: 0,
+      methodname: 'core_calendar_get_action_events_by_timesort',
+      args: { timesortfrom: now - 60 * 86400, timesortto: now + 120 * 86400, limitnum: 100 },
+    }]);
+    if (data[0]?.error) { console.error('Assignments error:', data[0].exception?.message); return []; }
 
-    const data = response.data;
-    if (!Array.isArray(data) || !data[0]) return [];
-    const result = data[0];
-    if (result.error) { console.error('Assignments API error:', result.exception); return []; }
-    const events = result.data?.events || [];
-    return events
-      .filter(e => e.modulename === 'assign' || e.eventtype === 'due')
-      .map(event => ({
-        id: event.id,
-        name: event.name,
-        coursename: event.course?.fullname || '',
-        duedate: event.timesort,
-        completed: event.action?.actionable === false,
-        url: event.url || '',
-        overdue: event.timesort < now,
-        daysLeft: Math.ceil((event.timesort - now) / 86400),
-      }));
-  } catch (err) {
-    console.error('Error fetching assignments:', err.message);
+    return (data[0]?.data?.events || []).map(e => ({
+      id: e.id,
+      name: e.name,
+      courseid: e.course?.id,
+      coursename: e.course?.fullname || '',
+      duedate: e.timesort,
+      completed: e.action?.actionable === false,
+      overdue: e.timesort < now && e.action?.actionable !== false,
+      daysLeft: Math.ceil((e.timesort - now) / 86400),
+      modulename: e.modulename || 'assign',
+      url: e.url || '',
+      description: e.description || '',
+    }));
+  } catch (e) {
+    console.error('fetchAssignments error:', e.message);
     return [];
   }
 }
+
+// ─── MESSAGES ────────────────────────────────────────────────────────────────
 
 async function fetchMessages(client, sesskey, userid) {
   try {
-    const response = await client.post('/lib/ajax/service.php', [
-      {
-        index: 0,
-        methodname: 'message_popup_get_popup_notifications',
-        args: { useridto: userid, newestfirst: true, limit: 20, offset: 0 },
-      },
-    ], { params: { sesskey } });
-
-    const data = response.data;
-    if (!Array.isArray(data) || !data[0]) return [];
-    const result = data[0];
-    if (result.error) { console.error('Messages API error:', result.exception); return []; }
-    const notifications = result.data?.notifications || [];
-    return notifications.map(n => ({
+    const data = await ajaxCall(client, sesskey, [{
+      index: 0,
+      methodname: 'message_popup_get_popup_notifications',
+      args: { useridto: userid, newestfirst: true, limit: 30, offset: 0 },
+    }]);
+    if (data[0]?.error) { console.error('Messages error:', data[0].exception?.message); return []; }
+    return (data[0]?.data?.notifications || []).map(n => ({
       id: n.id,
       subject: n.subject || n.smallmessage || 'הודעה',
-      text: n.fullmessage || n.smallmessage || '',
+      text: (n.fullmessagehtml || n.fullmessage || n.smallmessage || '').replace(/<[^>]+>/g, '').trim(),
       timecreated: n.timecreated,
-      read: n.read || false,
+      read: !!n.read,
       sender: n.userfromfullname || 'מערכת',
     }));
-  } catch (err) {
-    console.error('Error fetching messages:', err.message);
+  } catch (e) {
+    console.error('fetchMessages error:', e.message);
     return [];
   }
 }
 
+// ─── RECENT ACTIVITY ─────────────────────────────────────────────────────────
+
+async function fetchRecentActivity(client) {
+  try {
+    const res = await client.get('/report/recentactivity/index.php');
+    const $ = cheerio.load(res.data);
+    const activities = [];
+    $('.activityhead, .activity').each((i, el) => {
+      const text = $(el).text().replace(/\s+/g, ' ').trim();
+      if (text) activities.push(text.slice(0, 120));
+    });
+    return activities.slice(0, 10);
+  } catch {
+    return [];
+  }
+}
+
+// ─── MAIN ────────────────────────────────────────────────────────────────────
+
 async function fetchAllData(session) {
-  const { cookies, sesskey, userid } = session;
-  const client = buildAxiosClient(cookies);
-  const [courses, grades, assignments, messages] = await Promise.all([
+  const { cookieMap, sesskey, userid } = session;
+  const client = makeClient(cookieMap);
+
+  const [courses, assignments, messages] = await Promise.all([
     fetchCourses(client, sesskey),
-    fetchGrades(client),
     fetchAssignments(client, sesskey),
     fetchMessages(client, sesskey, userid),
   ]);
-  return { courses, grades, assignments, messages };
+
+  const grades = await fetchAllGrades(client, courses);
+
+  // Attach grade info to courses
+  const enrichedCourses = courses.map(c => {
+    const summary = grades.summaries.find(s => s.courseid === c.id);
+    return { ...c, grade: summary?.grade ?? null, gradeItems: summary?.items || [] };
+  });
+
+  // Compute stats
+  const numericGrades = grades.summaries.filter(s => s.grade !== null).map(s => s.grade);
+  const avgGrade = numericGrades.length
+    ? Math.round(numericGrades.reduce((a, b) => a + b, 0) / numericGrades.length)
+    : null;
+
+  return {
+    courses: enrichedCourses,
+    grades: grades.summaries,
+    gradeItems: grades.items,
+    assignments,
+    messages,
+    stats: {
+      totalCourses: courses.length,
+      avgGrade,
+      openAssignments: assignments.filter(a => !a.completed && !a.overdue).length,
+      overdueAssignments: assignments.filter(a => a.overdue).length,
+      completedAssignments: assignments.filter(a => a.completed).length,
+      unreadMessages: messages.filter(m => !m.read).length,
+    },
+  };
 }
 
 module.exports = { loginWithPuppeteer, fetchAllData };

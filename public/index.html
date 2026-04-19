@@ -1,1120 +1,618 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>KodCode Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Noto+Sans+Hebrew:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Noto+Sans+Hebrew:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #070b14;
-      --bg2: #0d1220;
-      --bg3: #111827;
-      --card: rgba(255,255,255,0.03);
-      --card-border: rgba(255,255,255,0.07);
-      --card-hover: rgba(255,255,255,0.06);
-      --accent: #38bdf8;
-      --accent2: #818cf8;
-      --accent3: #34d399;
-      --text: #f1f5f9;
-      --text2: #94a3b8;
-      --text3: #64748b;
-      --danger: #f87171;
-      --warning: #fbbf24;
-      --success: #34d399;
-      --sidebar-w: 240px;
-    }
-
-    html, body { height: 100%; font-family: 'Noto Sans Hebrew', sans-serif; background: var(--bg); color: var(--text); }
-    #root { height: 100%; }
-
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-
-    /* ──────────────── LOGIN ──────────────── */
-    .login-page {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--bg);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.15;
-      pointer-events: none;
-    }
-    .orb-1 { width: 500px; height: 500px; background: #38bdf8; top: -150px; right: -150px; }
-    .orb-2 { width: 400px; height: 400px; background: #818cf8; bottom: -100px; left: -100px; }
-    .orb-3 { width: 300px; height: 300px; background: #34d399; top: 50%; left: 50%; transform: translate(-50%,-50%); }
-
-    .login-card {
-      position: relative;
-      z-index: 10;
-      width: 100%;
-      max-width: 420px;
-      background: rgba(13,18,32,0.9);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 48px 40px;
-      backdrop-filter: blur(20px);
-      box-shadow: 0 0 60px rgba(56,189,248,0.08), 0 25px 50px rgba(0,0,0,0.5);
-    }
-
-    .login-logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 32px;
-      justify-content: center;
-    }
-
-    .login-logo-icon {
-      width: 48px; height: 48px;
-      background: linear-gradient(135deg, #38bdf8, #818cf8);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 20px;
-      color: white;
-      flex-shrink: 0;
-    }
-
-    .login-logo-text {
-      font-family: 'Syne', sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .login-subtitle { text-align: center; color: var(--text2); font-size: 14px; margin-bottom: 36px; }
-
-    .form-group { margin-bottom: 20px; }
-    .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 8px; }
-
-    .form-input {
-      width: 100%;
-      padding: 13px 16px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px;
-      color: var(--text);
-      font-size: 15px;
-      font-family: 'Noto Sans Hebrew', sans-serif;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      direction: ltr;
-    }
-
-    .form-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(56,189,248,0.15);
-    }
-
-    .form-input::placeholder { color: var(--text3); }
-
-    .btn-login {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #38bdf8, #818cf8);
-      border: none;
-      border-radius: 10px;
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-      font-family: 'Noto Sans Hebrew', sans-serif;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: opacity 0.2s, transform 0.1s;
-    }
-
-    .btn-login:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
-    .btn-login:active:not(:disabled) { transform: translateY(0); }
-    .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .login-error {
-      background: rgba(248,113,113,0.1);
-      border: 1px solid rgba(248,113,113,0.3);
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-size: 13px;
-      color: var(--danger);
-      margin-top: 16px;
-      text-align: center;
-    }
-
-    .spinner {
-      width: 18px; height: 18px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      display: inline-block;
-      vertical-align: middle;
-      margin-left: 8px;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ──────────────── LAYOUT ──────────────── */
-    .app-layout {
-      display: flex;
-      min-height: 100vh;
-      background: var(--bg);
-    }
-
-    /* ──────────────── SIDEBAR ──────────────── */
-    .sidebar {
-      width: var(--sidebar-w);
-      background: var(--bg2);
-      border-left: 1px solid var(--card-border);
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 100;
-    }
-
-    .sidebar-header {
-      padding: 24px 20px;
-      border-bottom: 1px solid var(--card-border);
-    }
-
-    .sidebar-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .sidebar-logo-icon {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, #38bdf8, #818cf8);
-      border-radius: 9px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 14px;
-      color: white;
-      flex-shrink: 0;
-    }
-
-    .sidebar-logo-text {
-      font-family: 'Syne', sans-serif;
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .sidebar-user {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--card-border);
-    }
-
-    .sidebar-user-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .sidebar-user-label {
-      font-size: 11px;
-      color: var(--text3);
-      margin-top: 2px;
-    }
-
-    .sidebar-nav {
-      flex: 1;
-      padding: 16px 12px;
-      overflow-y: auto;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 11px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-      color: var(--text2);
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 2px;
-      user-select: none;
-    }
-
-    .nav-item:hover { background: var(--card-hover); color: var(--text); }
-    .nav-item.active { background: rgba(56,189,248,0.12); color: var(--accent); }
-
-    .nav-icon { font-size: 18px; flex-shrink: 0; }
-
-    .nav-badge {
-      margin-right: auto;
-      background: var(--accent);
-      color: var(--bg);
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 999px;
-      min-width: 20px;
-      text-align: center;
-    }
-
-    .sidebar-footer {
-      padding: 16px 12px;
-      border-top: 1px solid var(--card-border);
-    }
-
-    .btn-logout {
-      width: 100%;
-      padding: 10px 12px;
-      background: rgba(248,113,113,0.08);
-      border: 1px solid rgba(248,113,113,0.2);
-      border-radius: 10px;
-      color: var(--danger);
-      font-size: 13px;
-      font-weight: 500;
-      font-family: 'Noto Sans Hebrew', sans-serif;
-      cursor: pointer;
-      text-align: center;
-      transition: background 0.15s;
-    }
-
-    .btn-logout:hover { background: rgba(248,113,113,0.15); }
-
-    /* ──────────────── MAIN ──────────────── */
-    .main-content {
-      flex: 1;
-      margin-left: 0;
-      margin-right: var(--sidebar-w);
-      padding: 32px;
-      overflow-y: auto;
-      min-height: 100vh;
-    }
-
-    .page-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-
-    .page-subtitle {
-      font-size: 14px;
-      color: var(--text3);
-      margin-bottom: 32px;
-    }
-
-    /* ──────────────── LOADING ──────────────── */
-    .loading-overlay {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 300px;
-      gap: 16px;
-      color: var(--text2);
-    }
-
-    .loading-spinner-lg {
-      width: 40px; height: 40px;
-      border: 3px solid rgba(56,189,248,0.2);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    /* ──────────────── STATS GRID ──────────────── */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-
-    .stat-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 24px 20px;
-      transition: border-color 0.2s, background 0.2s;
-    }
-
-    .stat-card:hover { background: var(--card-hover); border-color: rgba(255,255,255,0.12); }
-
-    .stat-icon {
-      font-size: 28px;
-      margin-bottom: 12px;
-    }
-
-    .stat-value {
-      font-family: 'Syne', sans-serif;
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-
-    .stat-label {
-      font-size: 13px;
-      color: var(--text3);
-    }
-
-    /* ──────────────── TWO-COL ──────────────── */
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-
-    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
-
-    /* ──────────────── SECTION CARD ──────────────── */
-    .section-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 24px;
-    }
-
-    .section-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    /* ──────────────── COURSE MINI ──────────────── */
-    .course-mini {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-    }
-
-    .course-mini:last-child { border-bottom: none; }
-
-    .course-abbr {
-      width: 42px; height: 42px;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 14px;
-      color: white;
-      flex-shrink: 0;
-    }
-
-    .course-mini-info { flex: 1; min-width: 0; }
-    .course-mini-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .course-mini-cat { font-size: 11px; color: var(--text3); margin-top: 2px; }
-
-    .progress-bar-wrap { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 6px; }
-    .progress-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, #38bdf8, #818cf8); transition: width 0.6s ease; }
-
-    /* ──────────────── ASSIGN MINI ──────────────── */
-    .assign-mini {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-    }
-
-    .assign-mini:last-child { border-bottom: none; }
-
-    .assign-mini-info { flex: 1; min-width: 0; }
-    .assign-mini-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .assign-mini-course { font-size: 11px; color: var(--text3); margin-top: 2px; }
-
-    .days-badge {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 999px;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .days-badge.danger { background: rgba(248,113,113,0.15); color: var(--danger); }
-    .days-badge.warning { background: rgba(251,191,36,0.15); color: var(--warning); }
-    .days-badge.ok { background: rgba(52,211,153,0.12); color: var(--success); }
-    .days-badge.overdue { background: rgba(248,113,113,0.2); color: var(--danger); border: 1px solid rgba(248,113,113,0.3); }
-
-    /* ──────────────── COURSES GRID ──────────────── */
-    .courses-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 16px;
-    }
-
-    .course-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 24px;
-      transition: border-color 0.2s, background 0.2s, transform 0.15s;
-    }
-
-    .course-card:hover { background: var(--card-hover); border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
-
-    .course-card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-    .course-card-abbr { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: white; flex-shrink: 0; }
-    .course-card-name { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.4; }
-    .course-card-cat { font-size: 12px; color: var(--text3); margin-top: 3px; }
-
-    .course-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
-    .course-progress-label { font-size: 12px; color: var(--text3); }
-
-    .grade-pill {
-      font-size: 12px;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 999px;
-    }
-
-    .grade-pill.high { background: rgba(52,211,153,0.15); color: var(--success); }
-    .grade-pill.mid { background: rgba(251,191,36,0.15); color: var(--warning); }
-    .grade-pill.low { background: rgba(248,113,113,0.15); color: var(--danger); }
-    .grade-pill.none { background: rgba(255,255,255,0.06); color: var(--text3); }
-
-    /* ──────────────── GRADES LIST ──────────────── */
-    .grade-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      margin-bottom: 10px;
-      transition: background 0.15s;
-    }
-
-    .grade-row:hover { background: var(--card-hover); }
-    .grade-row-name { font-size: 14px; color: var(--text); }
-
-    .grade-num {
-      font-family: 'Syne', sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-    }
-
-    .grade-num.high { color: var(--success); }
-    .grade-num.mid { color: var(--warning); }
-    .grade-num.low { color: var(--danger); }
-    .grade-num.none { color: var(--text3); font-size: 14px; }
-
-    /* ──────────────── ASSIGNMENTS ──────────────── */
-    .assign-section-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text3);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin: 24px 0 12px;
-    }
-
-    .assign-card {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 20px;
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      margin-bottom: 10px;
-      transition: background 0.15s;
-    }
-
-    .assign-card:hover { background: var(--card-hover); }
-    .assign-card.completed { opacity: 0.5; }
-
-    .assign-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .assign-dot.open { background: var(--accent); }
-    .assign-dot.done { background: var(--text3); }
-
-    .assign-card-info { flex: 1; min-width: 0; }
-    .assign-card-name { font-size: 14px; color: var(--text); }
-    .assign-card.completed .assign-card-name { text-decoration: line-through; color: var(--text3); }
-    .assign-card-course { font-size: 12px; color: var(--text3); margin-top: 3px; }
-
-    /* ──────────────── MESSAGES ──────────────── */
-    .message-card {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      padding: 16px 20px;
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      margin-bottom: 10px;
-      transition: background 0.15s;
-    }
-
-    .message-card.unread { border-color: rgba(56,189,248,0.25); background: rgba(56,189,248,0.04); }
-    .message-card:hover { background: var(--card-hover); }
-
-    .msg-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
-    .msg-dot.unread { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
-    .msg-dot.read { background: var(--text3); }
-
-    .msg-info { flex: 1; min-width: 0; }
-    .msg-subject { font-size: 14px; font-weight: 500; color: var(--text); }
-    .msg-sender { font-size: 12px; color: var(--text3); margin-top: 3px; }
-    .msg-text { font-size: 13px; color: var(--text2); margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-    .msg-time { font-size: 11px; color: var(--text3); white-space: nowrap; margin-top: 4px; }
-
-    /* ──────────────── EMPTY STATE ──────────────── */
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text3);
-      font-size: 14px;
-    }
-    .empty-state-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
-
-    /* ──────────────── RESPONSIVE ──────────────── */
-    @media (max-width: 768px) {
-      .sidebar { width: 60px; }
-      .sidebar-logo-text, .nav-item span, .sidebar-user, .btn-logout { display: none; }
-      .main-content { margin-right: 60px; padding: 20px 16px; }
-      --sidebar-w: 60px;
-    }
-  </style>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070b14;--bg2:#0c1221;--bg3:#111827;
+  --card:rgba(255,255,255,0.04);--card-b:rgba(255,255,255,0.08);--card-h:rgba(255,255,255,0.07);
+  --accent:#38bdf8;--accent2:#818cf8;--accent3:#34d399;--accent4:#f472b6;--accent5:#fb923c;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#475569;
+  --danger:#f87171;--warn:#fbbf24;--ok:#34d399;
+  --sw:260px;
+}
+html,body{height:100%;font-family:'Noto Sans Hebrew',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+#root{height:100%}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+
+/* ── ANIMATIONS ── */
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes gradientMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-20px) scale(1.05)}}
+
+.fade-in{animation:fadeUp .4s ease both}
+
+/* ── LOGIN ── */
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;animation:orbFloat 8s ease-in-out infinite}
+.orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(56,189,248,.25),transparent 70%);top:-200px;right:-200px;animation-delay:0s}
+.orb2{width:500px;height:500px;background:radial-gradient(circle,rgba(129,140,248,.2),transparent 70%);bottom:-150px;left:-150px;animation-delay:-3s}
+.orb3{width:350px;height:350px;background:radial-gradient(circle,rgba(52,211,153,.15),transparent 70%);top:40%;left:30%;animation-delay:-5s}
+
+.login-card{position:relative;z-index:10;width:100%;max-width:440px;background:rgba(12,18,33,0.85);border:1px solid rgba(56,189,248,.15);border-radius:24px;padding:48px 44px;backdrop-filter:blur(24px);box-shadow:0 0 80px rgba(56,189,248,.06),0 40px 80px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.05)}
+
+.login-logo{display:flex;align-items:center;gap:14px;justify-content:center;margin-bottom:8px}
+.logo-icon{width:52px;height:52px;background:linear-gradient(135deg,#38bdf8,#818cf8);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:#fff;box-shadow:0 8px 24px rgba(56,189,248,.3);flex-shrink:0}
+.logo-text{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;background:linear-gradient(135deg,#f1f5f9,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.login-sub{text-align:center;color:var(--text3);font-size:13px;margin-bottom:36px;margin-top:6px}
+
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;letter-spacing:.05em;text-transform:uppercase}
+.form-input{width:100%;padding:14px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:var(--text);font-size:15px;font-family:'Noto Sans Hebrew',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;direction:ltr}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.15)}
+.form-input::placeholder{color:var(--text3)}
+
+.btn-primary{width:100%;padding:15px;background:linear-gradient(135deg,#38bdf8,#818cf8);border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;font-family:'Noto Sans Hebrew',sans-serif;cursor:pointer;margin-top:8px;transition:opacity .2s,transform .15s,box-shadow .2s;box-shadow:0 8px 24px rgba(56,189,248,.25)}
+.btn-primary:hover:not(:disabled){opacity:.9;transform:translateY(-1px);box-shadow:0 12px 32px rgba(56,189,248,.35)}
+.btn-primary:active:not(:disabled){transform:translateY(0)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+
+.err-box{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--danger);margin-top:14px;text-align:center}
+.spinner{width:17px;height:17px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px}
+
+/* ── LAYOUT ── */
+.app{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sw);background:var(--bg2);border-left:1px solid var(--card-b);display:flex;flex-direction:column;position:fixed;top:0;right:0;bottom:0;z-index:100;transition:transform .3s}
+.sb-top{padding:24px 20px 16px;border-bottom:1px solid var(--card-b)}
+.sb-logo{display:flex;align-items:center;gap:10px}
+.sb-logo-icon{width:38px;height:38px;background:linear-gradient(135deg,#38bdf8,#818cf8);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#fff;flex-shrink:0}
+.sb-logo-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text)}
+
+.sb-user{padding:16px 20px;border-bottom:1px solid var(--card-b);display:flex;align-items:center;gap:12px}
+.sb-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#818cf8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex-shrink:0}
+.sb-user-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-user-role{font-size:11px;color:var(--text3)}
+
+.sb-nav{flex:1;padding:14px 12px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;color:var(--text2);font-size:14px;font-weight:500;margin-bottom:3px;user-select:none;transition:background .15s,color .15s}
+.nav-item:hover{background:var(--card-h);color:var(--text)}
+.nav-item.active{background:rgba(56,189,248,.12);color:var(--accent)}
+.nav-icon{font-size:18px;flex-shrink:0;width:22px;text-align:center}
+.nav-badge{margin-right:auto;background:var(--accent);color:var(--bg);font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px}
+
+.sb-footer{padding:14px 12px;border-top:1px solid var(--card-b)}
+.btn-logout{width:100%;padding:10px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;color:var(--danger);font-size:13px;font-weight:600;font-family:'Noto Sans Hebrew',sans-serif;cursor:pointer;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-logout:hover{background:rgba(248,113,113,.15)}
+
+/* ── MAIN ── */
+.main{flex:1;margin-right:var(--sw);padding:32px 36px;min-height:100vh;overflow-y:auto}
+.page-header{margin-bottom:32px}
+.page-title{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--text);line-height:1.1}
+.page-sub{font-size:14px;color:var(--text3);margin-top:6px}
+
+/* ── LOADING ── */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:350px;gap:16px;color:var(--text2)}
+.spinner-lg{width:42px;height:42px;border:3px solid rgba(56,189,248,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+.loading-text{font-size:14px;animation:pulse 1.5s ease infinite}
+
+/* ── STATS GRID ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--card-b);border-radius:18px;padding:22px 20px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s,background .2s;cursor:default}
+.stat-card::before{content:'';position:absolute;inset:0;background:var(--grad,transparent);opacity:.06;pointer-events:none}
+.stat-card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.14);background:var(--card-h)}
+.stat-card-icon{font-size:26px;margin-bottom:12px}
+.stat-card-value{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;line-height:1;margin-bottom:5px;background:var(--vgrad,none);-webkit-background-clip:var(--vclip,initial);-webkit-text-fill-color:var(--vtfill,var(--text))}
+.stat-card-label{font-size:12px;color:var(--text3);font-weight:500}
+.stat-card-sub{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* ── TWO COL ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+
+/* ── SECTION CARD ── */
+.sc{background:var(--card);border:1px solid var(--card-b);border-radius:18px;padding:24px}
+.sc-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.sc-count{font-size:11px;background:rgba(255,255,255,.07);color:var(--text3);padding:2px 8px;border-radius:999px;font-weight:600;margin-right:4px}
+
+/* ── COURSE ROW ── */
+.course-row{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.course-row:last-child{border-bottom:none;padding-bottom:0}
+.c-abbr{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;flex-shrink:0}
+.c-info{flex:1;min-width:0}
+.c-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.prog-bar{height:4px;background:rgba(255,255,255,.07);border-radius:2px;margin-top:7px}
+.prog-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .8s ease}
+
+.grade-pill{font-size:12px;font-weight:700;padding:4px 11px;border-radius:999px;flex-shrink:0}
+.gp-high{background:rgba(52,211,153,.15);color:var(--ok)}
+.gp-mid{background:rgba(251,191,36,.15);color:var(--warn)}
+.gp-low{background:rgba(248,113,113,.15);color:var(--danger)}
+.gp-none{background:rgba(255,255,255,.07);color:var(--text3)}
+
+/* ── ASSIGN ROW ── */
+.assign-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.assign-row:last-child{border-bottom:none}
+.a-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.a-info{flex:1;min-width:0}
+.a-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a-course{font-size:11px;color:var(--text3);margin-top:2px}
+.days-tag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;flex-shrink:0}
+.dt-danger{background:rgba(248,113,113,.15);color:var(--danger);border:1px solid rgba(248,113,113,.25)}
+.dt-warn{background:rgba(251,191,36,.15);color:var(--warn)}
+.dt-ok{background:rgba(52,211,153,.12);color:var(--ok)}
+.dt-over{background:rgba(248,113,113,.2);color:var(--danger);border:1px solid rgba(248,113,113,.35)}
+.dt-done{background:rgba(255,255,255,.06);color:var(--text3)}
+
+/* ── COURSE GRID ── */
+.courses-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.course-card{background:var(--card);border:1px solid var(--card-b);border-radius:18px;padding:24px;transition:border-color .2s,transform .2s,background .2s;cursor:default}
+.course-card:hover{border-color:rgba(255,255,255,.14);transform:translateY(-3px);background:var(--card-h)}
+.cc-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
+.cc-abbr{width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:#fff;flex-shrink:0}
+.cc-name{font-size:14px;font-weight:700;color:var(--text);line-height:1.4}
+.cc-cat{font-size:12px;color:var(--text3);margin-top:3px}
+.cc-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+.cc-prog-label{font-size:12px;color:var(--text3)}
+
+/* ── GRADE ITEMS ── */
+.grade-items{margin-top:12px;border-top:1px solid rgba(255,255,255,.05);padding-top:12px}
+.gi-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:12px;color:var(--text2)}
+.gi-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:12px}
+.gi-grade{font-weight:700;font-family:'Syne',sans-serif;font-size:14px}
+
+/* ── GRADES LIST ── */
+.grade-card{background:var(--card);border:1px solid var(--card-b);border-radius:14px;padding:20px 22px;margin-bottom:12px;transition:background .15s}
+.grade-card:hover{background:var(--card-h)}
+.grade-card-top{display:flex;align-items:center;justify-content:space-between}
+.gc-name{font-size:14px;font-weight:600;color:var(--text)}
+.gc-grade{font-family:'Syne',sans-serif;font-size:26px;font-weight:800}
+.gc-grade.high{color:var(--ok)} .gc-grade.mid{color:var(--warn)} .gc-grade.low{color:var(--danger)} .gc-grade.none{color:var(--text3);font-size:16px}
+.grade-sub-items{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gsi{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px 12px}
+.gsi-name{font-size:11px;color:var(--text3);margin-bottom:4px}
+.gsi-val{font-size:15px;font-weight:700;font-family:'Syne',sans-serif;color:var(--text)}
+
+/* ── ASSIGNMENTS PAGE ── */
+.sec-label{font-size:12px;font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+.sec-label::before{content:'';display:block;height:1px;flex:1;background:rgba(255,255,255,.06)}
+.assign-card{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--card-b);border-radius:14px;padding:16px 20px;margin-bottom:10px;transition:background .15s,border-color .15s}
+.assign-card:hover{background:var(--card-h)}
+.assign-card.overdue{border-color:rgba(248,113,113,.2)}
+.assign-card.completed{opacity:.5}
+.ac-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.ac-dot.open{background:var(--accent);box-shadow:0 0 8px rgba(56,189,248,.5)}
+.ac-dot.overdue{background:var(--danger)}
+.ac-dot.done{background:var(--text3)}
+.ac-info{flex:1;min-width:0}
+.ac-name{font-size:14px;font-weight:500;color:var(--text)} .completed .ac-name{text-decoration:line-through;color:var(--text3)}
+.ac-course{font-size:12px;color:var(--text3);margin-top:3px}
+.ac-date{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ── MESSAGES ── */
+.msg-card{display:flex;align-items:flex-start;gap:14px;background:var(--card);border:1px solid var(--card-b);border-radius:14px;padding:16px 20px;margin-bottom:10px;transition:background .15s}
+.msg-card:hover{background:var(--card-h)}
+.msg-card.unread{border-color:rgba(56,189,248,.2);background:rgba(56,189,248,.04)}
+.msg-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.msg-dot.unread{background:var(--accent);box-shadow:0 0 8px rgba(56,189,248,.6)}
+.msg-dot.read{background:var(--text3)}
+.msg-body{flex:1;min-width:0}
+.msg-subject{font-size:14px;font-weight:600;color:var(--text)}
+.msg-from{font-size:12px;color:var(--text3);margin-top:2px}
+.msg-text{font-size:12px;color:var(--text2);margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.msg-time{font-size:11px;color:var(--text3);flex-shrink:0}
+
+/* ── PROGRESS RING ── */
+.ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.ring-label{position:absolute;font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--text)}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:48px 20px;color:var(--text3)}
+.empty-icon{font-size:44px;margin-bottom:12px;opacity:.4}
+.empty-text{font-size:14px}
+
+/* ── CHIPS ── */
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.07);color:var(--text3)}
+.chip.warn{background:rgba(251,191,36,.12);color:var(--warn)}
+
+/* ── REFRESH BTN ── */
+.btn-refresh{background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);border-radius:8px;color:var(--accent);font-size:12px;font-weight:600;font-family:'Noto Sans Hebrew',sans-serif;padding:6px 14px;cursor:pointer;transition:background .15s}
+.btn-refresh:hover{background:rgba(56,189,248,.18)}
+.btn-refresh:disabled{opacity:.5;cursor:not-allowed}
+</style>
 </head>
 <body>
-  <div id="root"></div>
+<div id="root"></div>
+<script type="text/babel">
+const {useState, useEffect, useCallback} = React;
+const API = window.location.origin;
 
-  <script type="text/babel">
-    const { useState, useEffect, useCallback } = React;
+// ── helpers ──────────────────────────────────────────────────────────────────
+const COLORS=['#38bdf8','#818cf8','#34d399','#f472b6','#fb923c','#a78bfa','#22d3ee','#4ade80','#facc15','#f87171'];
+function courseColor(name=''){let h=0;for(let c of name)h=c.charCodeAt(0)+((h<<5)-h);return COLORS[Math.abs(h)%COLORS.length]}
+function abbr(name=''){const w=name.trim().split(/\s+/);return w.length>=2?(w[0][0]+w[1][0]).toUpperCase():name.slice(0,2).toUpperCase()}
+function gradeClass(g){if(typeof g!=='number')return 'none';if(g>=85)return'high';if(g>=60)return'mid';return'low'}
+function gradeColor(g){if(typeof g!=='number')return'var(--text3)';if(g>=85)return'var(--ok)';if(g>=60)return'var(--warn)';return'var(--danger)'}
+function fmtDate(ts){return new Date(ts*1000).toLocaleDateString('he-IL',{day:'numeric',month:'short'})}
+function timeAgo(ts){const d=Date.now()/1000-ts;if(d<60)return'עכשיו';if(d<3600)return`לפני ${Math.floor(d/60)} דק'`;if(d<86400)return`לפני ${Math.floor(d/3600)} ש'`;return`לפני ${Math.floor(d/86400)} ימים`}
+function dayTag(a){
+  if(a.completed) return{cls:'dt-done',label:'הושלם'};
+  if(a.overdue) return{cls:'dt-over',label:'באיחור'};
+  if(a.daysLeft<=0) return{cls:'dt-danger',label:'היום'};
+  if(a.daysLeft===1) return{cls:'dt-danger',label:'מחר'};
+  if(a.daysLeft<=3) return{cls:'dt-danger',label:`${a.daysLeft} ימים`};
+  if(a.daysLeft<=7) return{cls:'dt-warn',label:`${a.daysLeft} ימים`};
+  return{cls:'dt-ok',label:`${a.daysLeft} ימים`};
+}
 
-    // ─── CONFIG ───────────────────────────────────────────────────────────────
-    const API_URL = window.location.origin;
+// ── Progress Ring ─────────────────────────────────────────────────────────
+function Ring({value=0,size=80,stroke=7,color='#38bdf8'}){
+  const r=size/2-stroke;const circ=2*Math.PI*r;const pct=Math.min(100,Math.max(0,value));
+  return(
+    <div className="ring-wrap" style={{width:size,height:size}}>
+      <svg width={size} height={size} style={{transform:'rotate(-90deg)'}}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,.07)" strokeWidth={stroke}/>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={stroke}
+          strokeDasharray={circ} strokeDashoffset={circ*(1-pct/100)} strokeLinecap="round"
+          style={{transition:'stroke-dashoffset .8s ease'}}/>
+      </svg>
+      <div className="ring-label" style={{fontSize:size>70?18:13,color}}>{pct}%</div>
+    </div>
+  );
+}
 
-    // ─── HELPERS ──────────────────────────────────────────────────────────────
-    const COURSE_COLORS = [
-      '#38bdf8','#818cf8','#34d399','#f472b6','#fb923c',
-      '#a78bfa','#22d3ee','#4ade80','#facc15','#f87171'
-    ];
-
-    function getCourseColor(name = '') {
-      let hash = 0;
-      for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-      return COURSE_COLORS[Math.abs(hash) % COURSE_COLORS.length];
-    }
-
-    function getAbbr(name = '') {
-      const words = name.trim().split(/\s+/);
-      if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
-      return name.slice(0, 2).toUpperCase();
-    }
-
-    function gradeClass(g) {
-      if (typeof g !== 'number') return 'none';
-      if (g >= 85) return 'high';
-      if (g >= 60) return 'mid';
-      return 'low';
-    }
-
-    function formatDate(ts) {
-      const d = new Date(ts * 1000);
-      return d.toLocaleDateString('he-IL', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
-
-    function timeAgo(ts) {
-      const diff = Date.now() / 1000 - ts;
-      if (diff < 60) return 'עכשיו';
-      if (diff < 3600) return `לפני ${Math.floor(diff/60)} דק'`;
-      if (diff < 86400) return `לפני ${Math.floor(diff/3600)} שעות`;
-      return `לפני ${Math.floor(diff/86400)} ימים`;
-    }
-
-    function daysBadge(daysLeft, overdue) {
-      if (overdue) return { cls: 'overdue', label: 'פג תוקף' };
-      if (daysLeft <= 0) return { cls: 'overdue', label: 'היום' };
-      if (daysLeft <= 2) return { cls: 'danger', label: `${daysLeft} ימים` };
-      if (daysLeft <= 7) return { cls: 'warning', label: `${daysLeft} ימים` };
-      return { cls: 'ok', label: `${daysLeft} ימים` };
-    }
-
-    // ─── SPINNER ──────────────────────────────────────────────────────────────
-    function Spinner() { return <span className="spinner" />; }
-
-    // ─── LOGIN PAGE ───────────────────────────────────────────────────────────
-    function LoginPage({ onLogin }) {
-      const [username, setUsername] = useState('');
-      const [password, setPassword] = useState('');
-      const [loading, setLoading] = useState(false);
-      const [error, setError] = useState('');
-
-      async function handleSubmit(e) {
-        e.preventDefault();
-        if (!username || !password) { setError('נא למלא את כל השדות'); return; }
-        setLoading(true);
-        setError('');
-        try {
-          const res = await fetch(`${API_URL}/api/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: username.trim(), password }),
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error || 'שגיאת התחברות');
-          localStorage.setItem('sessionId', data.sessionId);
-          localStorage.setItem('fullname', data.fullname);
-          onLogin(data.sessionId, data.fullname);
-        } catch (err) {
-          setError(err.message);
-        } finally {
-          setLoading(false);
-        }
-      }
-
-      return (
-        <div className="login-page">
-          <div className="orb orb-1" />
-          <div className="orb orb-2" />
-          <div className="orb orb-3" />
-          <div className="login-card">
-            <div className="login-logo">
-              <div className="login-logo-icon">KC</div>
-              <div className="login-logo-text">KodCode Dashboard</div>
-            </div>
-            <div className="login-subtitle">הכנס את פרטי הכניסה שלך למערכת מודל</div>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label className="form-label">תעודת זהות</label>
-                <input
-                  className="form-input"
-                  type="text"
-                  placeholder="מספר תעודת זהות"
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  disabled={loading}
-                  autoComplete="username"
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">סיסמה</label>
-                <input
-                  className="form-input"
-                  type="password"
-                  placeholder="הסיסמה שלך"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  disabled={loading}
-                  autoComplete="current-password"
-                />
-              </div>
-              <button className="btn-login" type="submit" disabled={loading}>
-                {loading ? (<>מתחבר...<Spinner /></>) : 'כניסה למערכת'}
-              </button>
-              {error && <div className="login-error">{error}</div>}
-            </form>
+// ── Login ─────────────────────────────────────────────────────────────────
+function LoginPage({onLogin}){
+  const[u,setU]=useState('');const[p,setP]=useState('');const[loading,setL]=useState(false);const[err,setErr]=useState('');
+  async function submit(e){
+    e.preventDefault();if(!u||!p){setErr('נא למלא את כל השדות');return}
+    setL(true);setErr('');
+    try{
+      const r=await fetch(`${API}/api/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u.trim(),password:p})});
+      const d=await r.json();
+      if(!r.ok)throw new Error(d.error||'שגיאת התחברות');
+      localStorage.setItem('sessionId',d.sessionId);localStorage.setItem('fullname',d.fullname);
+      onLogin(d.sessionId,d.fullname);
+    }catch(e){setErr(e.message)}finally{setL(false)}
+  }
+  return(
+    <div className="login-page">
+      <div className="orb orb1"/><div className="orb orb2"/><div className="orb orb3"/>
+      <div className="login-card fade-in">
+        <div className="login-logo"><div className="logo-icon">KC</div><div className="logo-text">KodCode</div></div>
+        <div className="login-sub">פורטל הסטודנטים | KodCode Academy</div>
+        <form onSubmit={submit}>
+          <div className="form-group">
+            <label className="form-label">תעודת זהות</label>
+            <input className="form-input" type="text" placeholder="הכנס תעודת זהות" value={u} onChange={e=>setU(e.target.value)} disabled={loading}/>
           </div>
-        </div>
-      );
-    }
-
-    // ─── LOADING VIEW ─────────────────────────────────────────────────────────
-    function LoadingView({ text = 'טוען נתונים...' }) {
-      return (
-        <div className="loading-overlay">
-          <div className="loading-spinner-lg" />
-          <span>{text}</span>
-        </div>
-      );
-    }
-
-    // ─── OVERVIEW TAB ─────────────────────────────────────────────────────────
-    function OverviewTab({ data }) {
-      const { courses = [], grades = [], assignments = [] } = data;
-      const now = Date.now() / 1000;
-
-      const openAssign = assignments.filter(a => !a.completed && !a.overdue);
-      const avgGrade = (() => {
-        const nums = grades.filter(g => g.isNumeric).map(g => g.grade);
-        if (!nums.length) return null;
-        return Math.round(nums.reduce((s,v) => s+v, 0) / nums.length);
-      })();
-
-      const stats = [
-        { icon: '📚', value: courses.length, label: 'קורסים פעילים' },
-        { icon: '📊', value: avgGrade != null ? avgGrade : '—', label: 'ממוצע ציונים' },
-        { icon: '📝', value: openAssign.length, label: 'משימות פתוחות' },
-        { icon: '✅', value: assignments.filter(a => a.completed).length, label: 'משימות שהושלמו' },
-      ];
-
-      const recentCourses = courses.slice(0, 5);
-      const upcomingAssign = assignments.filter(a => !a.completed).sort((a,b) => a.duedate - b.duedate).slice(0, 5);
-
-      return (
-        <>
-          <div className="stats-grid">
-            {stats.map((s, i) => (
-              <div key={i} className="stat-card">
-                <div className="stat-icon">{s.icon}</div>
-                <div className="stat-value">{s.value}</div>
-                <div className="stat-label">{s.label}</div>
-              </div>
-            ))}
+          <div className="form-group">
+            <label className="form-label">סיסמה</label>
+            <input className="form-input" type="password" placeholder="הסיסמה שלך" value={p} onChange={e=>setP(e.target.value)} disabled={loading}/>
           </div>
+          <button className="btn-primary" type="submit" disabled={loading}>
+            {loading&&<span className="spinner"/>}{loading?'מתחבר...':'כניסה למערכת'}
+          </button>
+          {err&&<div className="err-box">⚠️ {err}</div>}
+        </form>
+      </div>
+    </div>
+  );
+}
 
-          <div className="two-col">
-            <div className="section-card">
-              <div className="section-title">📚 קורסים אחרונים</div>
-              {recentCourses.length === 0
-                ? <div className="empty-state"><div className="empty-state-icon">📭</div>אין קורסים</div>
-                : recentCourses.map(c => (
-                  <div key={c.id} className="course-mini">
-                    <div className="course-abbr" style={{ background: getCourseColor(c.fullname) }}>{getAbbr(c.fullname)}</div>
-                    <div className="course-mini-info">
-                      <div className="course-mini-name">{c.fullname}</div>
-                      <div className="course-mini-cat">{c.category || c.shortname}</div>
-                      <div className="progress-bar-wrap">
-                        <div className="progress-bar-fill" style={{ width: `${c.progress || 0}%` }} />
-                      </div>
-                    </div>
-                  </div>
-                ))
-              }
-            </div>
+// ── Stat Card ─────────────────────────────────────────────────────────────
+function StatCard({icon,value,label,sub,color='#38bdf8',grad}){
+  return(
+    <div className="stat-card" style={{'--grad':grad||`radial-gradient(circle at top right,${color},transparent)`}}>
+      <div className="stat-card-icon">{icon}</div>
+      <div className="stat-card-value" style={{color}}>{value??'—'}</div>
+      <div className="stat-card-label">{label}</div>
+      {sub&&<div className="stat-card-sub">{sub}</div>}
+    </div>
+  );
+}
 
-            <div className="section-card">
-              <div className="section-title">📅 משימות קרובות</div>
-              {upcomingAssign.length === 0
-                ? <div className="empty-state"><div className="empty-state-icon">🎉</div>אין משימות פתוחות</div>
-                : upcomingAssign.map(a => {
-                  const { cls, label } = daysBadge(a.daysLeft, a.overdue);
-                  return (
-                    <div key={a.id} className="assign-mini">
-                      <div className="assign-mini-info">
-                        <div className="assign-mini-name">{a.name}</div>
-                        <div className="assign-mini-course">{a.coursename}</div>
-                      </div>
-                      <span className={`days-badge ${cls}`}>{label}</span>
-                    </div>
-                  );
-                })
-              }
-            </div>
-          </div>
-        </>
-      );
-    }
+// ── Overview ──────────────────────────────────────────────────────────────
+function Overview({data,fullname}){
+  const {courses=[],grades=[],assignments=[],stats={}}=data;
+  const open=assignments.filter(a=>!a.completed&&!a.overdue).sort((a,b)=>a.duedate-b.duedate);
+  const top5=courses.slice(0,5);
+  const gradeMap={};grades.forEach(g=>{gradeMap[g.courseid]=g.grade});
+  return(
+    <div className="fade-in">
+      <div className="stats-grid">
+        <StatCard icon="📚" value={stats.totalCourses} label="קורסים פעילים" color="#38bdf8"/>
+        <StatCard icon="🏆" value={stats.avgGrade!=null?stats.avgGrade+'%':'—'} label="ממוצע ציונים" color={gradeColor(stats.avgGrade)} sub={stats.avgGrade>=85?'מצוין!':stats.avgGrade>=60?'טוב':'טעון שיפור'}/>
+        <StatCard icon="📝" value={stats.openAssignments} label="משימות פתוחות" color="#818cf8"/>
+        <StatCard icon="🔴" value={stats.overdueAssignments} label="באיחור" color="#f87171"/>
+        <StatCard icon="✅" value={stats.completedAssignments} label="הושלמו" color="#34d399"/>
+        <StatCard icon="💬" value={stats.unreadMessages} label="הודעות חדשות" color="#f472b6"/>
+      </div>
 
-    // ─── COURSES TAB ──────────────────────────────────────────────────────────
-    function CoursesTab({ data }) {
-      const { courses = [], grades = [] } = data;
-      const gradeMap = {};
-      grades.forEach(g => { gradeMap[g.coursename] = g; });
-
-      if (courses.length === 0) return (
-        <div className="empty-state" style={{ marginTop: 60 }}>
-          <div className="empty-state-icon">📚</div>
-          לא נמצאו קורסים
-        </div>
-      );
-
-      return (
-        <div className="courses-grid">
-          {courses.map(c => {
-            const grade = gradeMap[c.fullname];
-            const gradeVal = grade ? grade.grade : null;
-            const cls = gradeClass(gradeVal);
-            return (
-              <div key={c.id} className="course-card">
-                <div className="course-card-header">
-                  <div className="course-card-abbr" style={{ background: getCourseColor(c.fullname) }}>{getAbbr(c.fullname)}</div>
-                  <div>
-                    <div className="course-card-name">{c.fullname}</div>
-                    <div className="course-card-cat">{c.category || c.shortname}</div>
-                  </div>
+      <div className="two-col">
+        <div className="sc">
+          <div className="sc-title">📚 הקורסים שלי <span className="sc-count">{courses.length}</span></div>
+          {top5.length===0?<div className="empty"><div className="empty-icon">📭</div><div className="empty-text">אין קורסים</div></div>
+          :top5.map(c=>{
+            const g=gradeMap[c.id];const gc=gradeClass(g);
+            return(
+              <div key={c.id} className="course-row">
+                <div className="c-abbr" style={{background:courseColor(c.fullname)}}>{abbr(c.fullname)}</div>
+                <div className="c-info">
+                  <div className="c-name">{c.fullname}</div>
+                  <div className="c-sub">{c.shortname||c.category}</div>
+                  <div className="prog-bar"><div className="prog-fill" style={{width:c.progress+'%'}}/></div>
                 </div>
-                <div className="progress-bar-wrap">
-                  <div className="progress-bar-fill" style={{ width: `${c.progress || 0}%` }} />
-                </div>
-                <div className="course-card-footer">
-                  <span className="course-progress-label">{c.progress || 0}% הושלם</span>
-                  {gradeVal != null
-                    ? <span className={`grade-pill ${cls}`}>{typeof gradeVal === 'number' ? gradeVal : gradeVal}</span>
-                    : <span className="grade-pill none">אין ציון</span>
-                  }
-                </div>
+                {g!=null?<span className={`grade-pill gp-${gc}`}>{g}</span>:<span className="grade-pill gp-none">—</span>}
               </div>
             );
           })}
         </div>
-      );
-    }
 
-    // ─── GRADES TAB ───────────────────────────────────────────────────────────
-    function GradesTab({ data }) {
-      const { grades = [] } = data;
-      if (grades.length === 0) return (
-        <div className="empty-state" style={{ marginTop: 60 }}>
-          <div className="empty-state-icon">📊</div>
-          לא נמצאו ציונים
-        </div>
-      );
-      return (
-        <div>
-          {grades.map((g, i) => {
-            const cls = gradeClass(g.grade);
-            return (
-              <div key={i} className="grade-row">
-                <span className="grade-row-name">{g.coursename}</span>
-                <span className={`grade-num ${cls}`}>{g.grade}</span>
+        <div className="sc">
+          <div className="sc-title">⏰ משימות קרובות <span className="sc-count">{open.length}</span></div>
+          {open.length===0?<div className="empty"><div className="empty-icon">🎉</div><div className="empty-text">אין משימות פתוחות</div></div>
+          :open.slice(0,6).map(a=>{
+            const{cls,label}=dayTag(a);
+            return(
+              <div key={a.id} className="assign-row">
+                <div className="a-dot" style={{background:'var(--accent)'}}/>
+                <div className="a-info"><div className="a-name">{a.name}</div><div className="a-course">{a.coursename}</div></div>
+                <span className={`days-tag ${cls}`}>{label}</span>
               </div>
             );
           })}
         </div>
-      );
-    }
+      </div>
+    </div>
+  );
+}
 
-    // ─── ASSIGNMENTS TAB ──────────────────────────────────────────────────────
-    function AssignmentsTab({ data }) {
-      const { assignments = [] } = data;
-      const open = assignments.filter(a => !a.completed).sort((a,b) => a.duedate - b.duedate);
-      const done = assignments.filter(a => a.completed);
-
-      return (
-        <div>
-          <div className="assign-section-title">משימות פתוחות ({open.length})</div>
-          {open.length === 0
-            ? <div className="empty-state"><div className="empty-state-icon">🎉</div>אין משימות פתוחות</div>
-            : open.map(a => {
-              const { cls, label } = daysBadge(a.daysLeft, a.overdue);
-              return (
-                <div key={a.id} className="assign-card">
-                  <div className="assign-dot open" />
-                  <div className="assign-card-info">
-                    <div className="assign-card-name">{a.name}</div>
-                    <div className="assign-card-course">{a.coursename} · {formatDate(a.duedate)}</div>
-                  </div>
-                  <span className={`days-badge ${cls}`}>{label}</span>
-                </div>
-              );
-            })
-          }
-
-          {done.length > 0 && (
-            <>
-              <div className="assign-section-title" style={{ marginTop: 32 }}>הושלמו ({done.length})</div>
-              {done.map(a => (
-                <div key={a.id} className="assign-card completed">
-                  <div className="assign-dot done" />
-                  <div className="assign-card-info">
-                    <div className="assign-card-name">{a.name}</div>
-                    <div className="assign-card-course">{a.coursename}</div>
-                  </div>
-                  <span className="days-badge ok">הושלם</span>
-                </div>
-              ))}
-            </>
-          )}
-        </div>
-      );
-    }
-
-    // ─── MESSAGES TAB ─────────────────────────────────────────────────────────
-    function MessagesTab({ data }) {
-      const { messages = [] } = data;
-      if (messages.length === 0) return (
-        <div className="empty-state" style={{ marginTop: 60 }}>
-          <div className="empty-state-icon">💬</div>
-          אין הודעות
-        </div>
-      );
-      return (
-        <div>
-          {messages.map(m => (
-            <div key={m.id} className={`message-card ${m.read ? '' : 'unread'}`}>
-              <div className={`msg-dot ${m.read ? 'read' : 'unread'}`} />
-              <div className="msg-info">
-                <div className="msg-subject">{m.subject}</div>
-                <div className="msg-sender">{m.sender}</div>
-                {m.text && <div className="msg-text" dangerouslySetInnerHTML={{ __html: m.text.replace(/<[^>]+>/g,'').slice(0,200) }} />}
+// ── Courses ───────────────────────────────────────────────────────────────
+function Courses({data}){
+  const{courses=[]}=data;
+  if(!courses.length)return<div className="empty fade-in"><div className="empty-icon">📚</div><div className="empty-text">לא נמצאו קורסים</div></div>;
+  return(
+    <div className="courses-grid fade-in">
+      {courses.map(c=>{
+        const gc=gradeClass(c.grade);
+        return(
+          <div key={c.id} className="course-card">
+            <div className="cc-top">
+              <div className="cc-abbr" style={{background:courseColor(c.fullname)}}>{abbr(c.fullname)}</div>
+              <div style={{flex:1}}>
+                <div className="cc-name">{c.fullname}</div>
+                <div className="cc-cat">{c.shortname||c.category}</div>
               </div>
-              <div className="msg-time">{timeAgo(m.timecreated)}</div>
+              {c.grade!=null&&<div style={{fontSize:22,fontFamily:'Syne',fontWeight:800,color:gradeColor(c.grade)}}>{c.grade}</div>}
+            </div>
+            <div className="prog-bar"><div className="prog-fill" style={{width:c.progress+'%'}}/></div>
+            <div className="cc-bottom">
+              <span className="cc-prog-label">{c.progress}% הושלם</span>
+              {c.grade!=null?<span className={`grade-pill gp-${gc}`}>{c.grade>=85?'מצוין':c.grade>=75?'טוב מאוד':c.grade>=60?'טוב':'לשיפור'}</span>:<span className="grade-pill gp-none">אין ציון</span>}
+            </div>
+            {c.gradeItems&&c.gradeItems.length>0&&(
+              <div className="grade-items">
+                {c.gradeItems.slice(0,4).map((it,i)=>(
+                  <div key={i} className="gi-row">
+                    <span className="gi-name">{it.name}</span>
+                    <span className="gi-grade" style={{color:gradeColor(it.grade)}}>{it.grade}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Grades ────────────────────────────────────────────────────────────────
+function Grades({data}){
+  const{grades=[]}=data;
+  if(!grades.length)return<div className="empty fade-in"><div className="empty-icon">📊</div><div className="empty-text">לא נמצאו ציונים</div></div>;
+  return(
+    <div className="fade-in">
+      {grades.map((g,i)=>{
+        const gc=gradeClass(g.grade);
+        return(
+          <div key={i} className="grade-card">
+            <div className="grade-card-top">
+              <div>
+                <div className="gc-name">{g.coursename}</div>
+                {g.items&&g.items.length>0&&<div style={{fontSize:11,color:'var(--text3)',marginTop:3}}>{g.items.length} פריטי ציון</div>}
+              </div>
+              <div className={`gc-grade ${gc}`}>{g.grade!=null?g.grade+'%':'—'}</div>
+            </div>
+            {g.items&&g.items.length>0&&(
+              <div className="grade-sub-items">
+                {g.items.map((it,j)=>(
+                  <div key={j} className="gsi">
+                    <div className="gsi-name">{it.name}</div>
+                    <div className="gsi-val" style={{color:gradeColor(it.grade)}}>{it.grade}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Assignments ───────────────────────────────────────────────────────────
+function Assignments({data}){
+  const{assignments=[]}=data;
+  const overdue=assignments.filter(a=>a.overdue&&!a.completed).sort((a,b)=>a.duedate-b.duedate);
+  const open=assignments.filter(a=>!a.completed&&!a.overdue).sort((a,b)=>a.duedate-b.duedate);
+  const done=assignments.filter(a=>a.completed);
+  const Section=({list,title,cls})=>(
+    list.length>0&&(
+      <>
+        <div className="sec-label">{title} ({list.length})</div>
+        {list.map(a=>{
+          const{cls:tc,label}=dayTag(a);
+          const dotCls=a.completed?'done':a.overdue?'overdue':'open';
+          return(
+            <div key={a.id} className={`assign-card ${cls||''}`}>
+              <div className={`ac-dot ${dotCls}`}/>
+              <div className="ac-info">
+                <div className="ac-name">{a.name}</div>
+                <div className="ac-course">{a.coursename}</div>
+                <div className="ac-date">{fmtDate(a.duedate)}</div>
+              </div>
+              <span className={`days-tag ${tc}`}>{label}</span>
+            </div>
+          );
+        })}
+      </>
+    )
+  );
+  if(!assignments.length)return<div className="empty fade-in"><div className="empty-icon">📝</div><div className="empty-text">אין משימות</div></div>;
+  return(
+    <div className="fade-in">
+      <Section list={overdue} title="🔴 באיחור" cls="overdue"/>
+      <Section list={open} title="📌 פתוחות"/>
+      <Section list={done} title="✅ הושלמו" cls="completed"/>
+    </div>
+  );
+}
+
+// ── Messages ──────────────────────────────────────────────────────────────
+function Messages({data}){
+  const{messages=[]}=data;
+  if(!messages.length)return<div className="empty fade-in"><div className="empty-icon">💬</div><div className="empty-text">אין הודעות</div></div>;
+  return(
+    <div className="fade-in">
+      {messages.map(m=>(
+        <div key={m.id} className={`msg-card ${m.read?'':'unread'}`}>
+          <div className={`msg-dot ${m.read?'read':'unread'}`}/>
+          <div className="msg-body">
+            <div className="msg-subject">{m.subject}</div>
+            <div className="msg-from">מאת: {m.sender}</div>
+            {m.text&&<div className="msg-text">{m.text.slice(0,200)}</div>}
+          </div>
+          <div className="msg-time">{timeAgo(m.timecreated)}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────
+function Dashboard({sessionId,fullname,onLogout}){
+  const[tab,setTab]=useState('overview');
+  const[data,setData]=useState(null);
+  const[loading,setLoading]=useState(true);
+  const[err,setErr]=useState('');
+  const[refreshing,setRefreshing]=useState(false);
+
+  const load=useCallback(async(refresh=false)=>{
+    if(refresh)setRefreshing(true); else setLoading(true);
+    setErr('');
+    try{
+      const r=await fetch(`${API}/api/data?sessionId=${sessionId}${refresh?'&refresh=1':''}`);
+      const d=await r.json();
+      if(!r.ok){if(d.error==='SESSION_EXPIRED'){onLogout();return}throw new Error(d.error||'שגיאה')}
+      setData(d);
+    }catch(e){setErr(e.message)}
+    finally{setLoading(false);setRefreshing(false)}
+  },[sessionId]);
+
+  useEffect(()=>{load()},[load]);
+
+  const TABS=[
+    {id:'overview',icon:'🏠',label:'סקירה'},
+    {id:'courses',icon:'📚',label:'קורסים'},
+    {id:'grades',icon:'🏆',label:'ציונים'},
+    {id:'assignments',icon:'📝',label:'משימות',badge:data?.stats?.openAssignments},
+    {id:'messages',icon:'💬',label:'הודעות',badge:data?.stats?.unreadMessages},
+  ];
+
+  const TITLES={overview:'סקירה כללית',courses:'הקורסים שלי',grades:'ציונים ומבחנים',assignments:'משימות',messages:'הודעות ועדכונים'};
+
+  async function logout(){
+    try{await fetch(`${API}/api/logout`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId})})}catch{}
+    onLogout();
+  }
+
+  const initials=fullname?fullname.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase():'?';
+
+  return(
+    <div className="app">
+      <aside className="sidebar">
+        <div className="sb-top">
+          <div className="sb-logo">
+            <div className="sb-logo-icon">KC</div>
+            <div className="sb-logo-text">KodCode</div>
+          </div>
+        </div>
+        <div className="sb-user">
+          <div className="sb-avatar">{initials}</div>
+          <div><div className="sb-user-name">{fullname}</div><div className="sb-user-role">תלמיד</div></div>
+        </div>
+        <nav className="sb-nav">
+          {TABS.map(t=>(
+            <div key={t.id} className={`nav-item${tab===t.id?' active':''}`} onClick={()=>setTab(t.id)}>
+              <span className="nav-icon">{t.icon}</span>
+              <span>{t.label}</span>
+              {t.badge>0&&<span className="nav-badge">{t.badge}</span>}
             </div>
           ))}
+        </nav>
+        <div className="sb-footer">
+          <button className="btn-logout" onClick={logout}>🚪 התנתק</button>
         </div>
-      );
-    }
+      </aside>
 
-    // ─── DASHBOARD ────────────────────────────────────────────────────────────
-    function Dashboard({ sessionId, fullname, onLogout }) {
-      const [activeTab, setActiveTab] = useState('overview');
-      const [data, setData] = useState(null);
-      const [loading, setLoading] = useState(true);
-      const [error, setError] = useState('');
-
-      useEffect(() => {
-        let cancelled = false;
-        async function load() {
-          setLoading(true);
-          setError('');
-          try {
-            const res = await fetch(`${API_URL}/api/data?sessionId=${sessionId}`);
-            const d = await res.json();
-            if (!res.ok) {
-              if (d.error === 'SESSION_EXPIRED') { onLogout(); return; }
-              throw new Error(d.error || 'שגיאת שרת');
-            }
-            if (!cancelled) setData(d);
-          } catch (err) {
-            if (!cancelled) setError(err.message);
-          } finally {
-            if (!cancelled) setLoading(false);
-          }
-        }
-        load();
-        return () => { cancelled = true; };
-      }, [sessionId]);
-
-      const tabs = [
-        { id: 'overview',     icon: '🏠', label: 'סקירה כללית' },
-        { id: 'courses',      icon: '📚', label: 'קורסים' },
-        { id: 'grades',       icon: '📊', label: 'ציונים' },
-        { id: 'assignments',  icon: '📝', label: 'משימות' },
-        { id: 'messages',     icon: '💬', label: 'הודעות',
-          badge: data ? data.messages.filter(m => !m.read).length : 0 },
-      ];
-
-      const tabTitles = {
-        overview: 'סקירה כללית',
-        courses: 'קורסים',
-        grades: 'ציונים',
-        assignments: 'משימות',
-        messages: 'הודעות',
-      };
-
-      async function handleLogout() {
-        try {
-          await fetch(`${API_URL}/api/logout`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionId }),
-          });
-        } catch {}
-        onLogout();
-      }
-
-      return (
-        <div className="app-layout">
-          {/* Sidebar */}
-          <aside className="sidebar">
-            <div className="sidebar-header">
-              <div className="sidebar-logo">
-                <div className="sidebar-logo-icon">KC</div>
-                <div className="sidebar-logo-text">KodCode</div>
+      <main className="main">
+        <div className="page-header">
+          <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
+            <div>
+              <div className="page-title">{TITLES[tab]}</div>
+              <div className="page-sub">
+                {tab==='overview'&&`שלום ${fullname} 👋 — ברוך הבא לפורטל שלך`}
+                {tab==='courses'&&'כל הקורסים הפעילים שלך עם ציונים ופרוגרס'}
+                {tab==='grades'&&'ציונים מלאים לפי קורס, כולל פירוט פריטים'}
+                {tab==='assignments'&&'כל המשימות — פתוחות, באיחור ומושלמות'}
+                {tab==='messages'&&'הודעות ועדכונים מהמסטרים שלך'}
               </div>
             </div>
-            <div className="sidebar-user">
-              <div className="sidebar-user-name">{fullname}</div>
-              <div className="sidebar-user-label">תלמיד</div>
-            </div>
-            <nav className="sidebar-nav">
-              {tabs.map(t => (
-                <div
-                  key={t.id}
-                  className={`nav-item ${activeTab === t.id ? 'active' : ''}`}
-                  onClick={() => setActiveTab(t.id)}
-                >
-                  <span className="nav-icon">{t.icon}</span>
-                  <span>{t.label}</span>
-                  {t.badge > 0 && <span className="nav-badge">{t.badge}</span>}
-                </div>
-              ))}
-            </nav>
-            <div className="sidebar-footer">
-              <button className="btn-logout" onClick={handleLogout}>🚪 התנתק</button>
-            </div>
-          </aside>
-
-          {/* Main */}
-          <main className="main-content">
-            <div className="page-title">{tabTitles[activeTab]}</div>
-            <div className="page-subtitle">
-              {activeTab === 'overview' && `שלום, ${fullname}! ברוך הבא ל-KodCode Dashboard`}
-              {activeTab === 'courses' && 'כל הקורסים הפעילים שלך'}
-              {activeTab === 'grades' && 'סיכום הציונים שלך'}
-              {activeTab === 'assignments' && 'המשימות הפתוחות והמושלמות שלך'}
-              {activeTab === 'messages' && 'ההודעות והעדכונים שלך'}
-            </div>
-
-            {loading && <LoadingView />}
-            {!loading && error && (
-              <div className="login-error" style={{ maxWidth: 400 }}>
-                ⚠️ {error}
-                <button style={{ marginTop: 12, display: 'block', cursor: 'pointer', background: 'none', border: '1px solid currentColor', borderRadius: 6, padding: '4px 12px', color: 'inherit', fontFamily: 'inherit' }} onClick={() => window.location.reload()}>נסה שוב</button>
-              </div>
-            )}
-            {!loading && !error && data && (
-              <>
-                {activeTab === 'overview'    && <OverviewTab    data={data} />}
-                {activeTab === 'courses'     && <CoursesTab     data={data} />}
-                {activeTab === 'grades'      && <GradesTab      data={data} />}
-                {activeTab === 'assignments' && <AssignmentsTab data={data} />}
-                {activeTab === 'messages'    && <MessagesTab    data={data} />}
-              </>
-            )}
-          </main>
+            {data&&<button className="btn-refresh" onClick={()=>load(true)} disabled={refreshing}>{refreshing?'מרענן...':'🔄 רענן'}</button>}
+          </div>
         </div>
-      );
-    }
 
-    // ─── ROOT APP ─────────────────────────────────────────────────────────────
-    function App() {
-      const [sessionId, setSessionId] = useState(() => localStorage.getItem('sessionId'));
-      const [fullname, setFullname]   = useState(() => localStorage.getItem('fullname') || '');
+        {loading&&<div className="loading"><div className="spinner-lg"/><div className="loading-text">שולף נתונים מ-Moodle...</div></div>}
+        {!loading&&err&&<div className="err-box" style={{maxWidth:400}}>⚠️ {err}<br/><button style={{marginTop:10,cursor:'pointer',background:'none',border:'1px solid currentColor',borderRadius:6,padding:'4px 12px',color:'inherit',fontFamily:'inherit',fontSize:12}} onClick={()=>load()}>נסה שוב</button></div>}
+        {!loading&&!err&&data&&(
+          <>
+            {tab==='overview'&&<Overview data={data} fullname={fullname}/>}
+            {tab==='courses'&&<Courses data={data}/>}
+            {tab==='grades'&&<Grades data={data}/>}
+            {tab==='assignments'&&<Assignments data={data}/>}
+            {tab==='messages'&&<Messages data={data}/>}
+          </>
+        )}
+      </main>
+    </div>
+  );
+}
 
-      function handleLogin(id, name) {
-        setSessionId(id);
-        setFullname(name);
-      }
-
-      function handleLogout() {
-        localStorage.removeItem('sessionId');
-        localStorage.removeItem('fullname');
-        setSessionId(null);
-        setFullname('');
-      }
-
-      if (!sessionId) return <LoginPage onLogin={handleLogin} />;
-      return <Dashboard sessionId={sessionId} fullname={fullname} onLogout={handleLogout} />;
-    }
-
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-  </script>
+// ── App ───────────────────────────────────────────────────────────────────
+function App(){
+  const[sid,setSid]=useState(()=>localStorage.getItem('sessionId'));
+  const[name,setName]=useState(()=>localStorage.getItem('fullname')||'');
+  function onLogin(id,n){setSid(id);setName(n)}
+  function onLogout(){localStorage.removeItem('sessionId');localStorage.removeItem('fullname');setSid(null);setName('')}
+  if(!sid)return <LoginPage onLogin={onLogin}/>;
+  return <Dashboard sessionId={sid} fullname={name} onLogout={onLogout}/>;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
 </body>
 </html>
